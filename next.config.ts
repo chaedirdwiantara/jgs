@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
    */
   output: "export",
 
+  /**
+   * Emit `armada/index.html` instead of `armada.html`, the layout every static
+   * host resolves without extra rewrite rules. Next also normalises the emitted
+   * `<link rel="canonical">` to match, and `sitemap.ts` follows suit.
+   */
+  trailingSlash: true,
+
   images: {
     /**
      * The default image loader needs the Next.js server. Nothing uses

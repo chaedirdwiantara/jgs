@@ -11,7 +11,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
   return routes.map((route) => ({
-    url: `${siteConfig.url}${route}`,
+    // Trailing slash matches `trailingSlash: true` and the emitted <link rel="canonical">,
+    // so crawlers are not sent through a redirect.
+    url: `${siteConfig.url}${route}/`,
     lastModified,
     changeFrequency: route === "" ? "weekly" : "monthly",
     priority: route === "" ? 1 : route === "/sewa-mobil" ? 0.9 : 0.7,

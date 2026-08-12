@@ -1,0 +1,46 @@
+name: Deploy
+
+# Build on every PR and push; publish to Cloudflare Pages only on push to main.
+# `next build` runs with output:"export" and writes the static site to out/.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build & deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build # -> out/
+
+      # Deploy only on a real push to main — skipped on pull_request builds.
+      - name: Deploy to Cloudflare Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Account ID is a public identifier, not a secret — safe to inline.
+          accountId: '543db91ab298210e65f7ca0f520babdd'
+          command: pages deploy out --project-name jgs-ev --branch=main
