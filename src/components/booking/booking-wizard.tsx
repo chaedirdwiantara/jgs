@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+
 import { StepConfirm } from "@/components/booking/step-confirm";
 import { StepDetails } from "@/components/booking/step-details";
 import { StepVehicle } from "@/components/booking/step-vehicle";
@@ -8,9 +10,10 @@ import { WIZARD_STEPS } from "@/features/booking/constants";
 import type { ServiceType } from "@/features/booking/types";
 import { useBookingWizard } from "@/features/booking/use-booking-wizard";
 
-type Props = {
-  /** Preselected from the `?layanan=` query string. */
-  initialServiceType?: ServiceType;
+/** Values accepted by `?layanan=`, mapped to the service they preselect. */
+const SERVICE_QUERY: Record<string, ServiceType> = {
+  "rental-harian": "rental-harian",
+  "antar-jemput": "antar-jemput",
 };
 
 /**
@@ -19,8 +22,14 @@ type Props = {
  *
  * Navigation and collected data live in `useBookingWizard`; each step is a
  * presentational component that reports upward.
+ *
+ * The `?layanan=` preselection is read here rather than on the server so the
+ * page stays statically exportable; the caller supplies a Suspense boundary.
  */
-export function BookingWizard({ initialServiceType }: Props) {
+export function BookingWizard() {
+  const layanan = useSearchParams().get("layanan");
+  const initialServiceType = layanan ? SERVICE_QUERY[layanan] : undefined;
+
   const wizard = useBookingWizard(
     initialServiceType ? { serviceType: initialServiceType } : undefined,
   );

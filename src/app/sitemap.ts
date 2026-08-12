@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 
 import { siteConfig } from "@/config/site";
 
+/** Required by `output: "export"`: emit sitemap.xml at build time. */
+export const dynamic = "force-static";
+
 const routes = ["", "/armada", "/sewa-mobil", "/tentang", "/kontak"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

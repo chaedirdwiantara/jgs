@@ -15,8 +15,8 @@ export const siteConfig = {
   description:
     "Layanan sewa mobil 100% listrik dari PT Jagayanigiri Sentosa. Rental harian dan antar-jemput bandara dengan armada EV terawat, driver profesional, dan harga transparan.",
 
-  /** TODO: ganti dengan domain produksi. Dipakai untuk metadata & sitemap. */
-  url: "https://jagayanigiri.co.id",
+  /** Domain produksi. Dipakai untuk metadata & sitemap. */
+  url: "https://jgs-ev.com",
 
   contact: {
     /** Nomor WhatsApp admin. Format bebas — dinormalisasi otomatis ke 62…. */

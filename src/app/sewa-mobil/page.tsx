@@ -1,9 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { BatteryCharging, MessageCircle, ShieldCheck } from "lucide-react";
 
 import { BookingWizard } from "@/components/booking/booking-wizard";
 import { Container } from "@/components/ui/section";
-import type { ServiceType } from "@/features/booking/types";
 
 export const metadata: Metadata = {
   title: "Sewa Mobil Listrik",
@@ -12,25 +12,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/sewa-mobil" },
 };
 
-const SERVICE_QUERY: Record<string, ServiceType> = {
-  "rental-harian": "rental-harian",
-  "antar-jemput": "antar-jemput",
-};
-
 const assurances = [
   { icon: MessageCircle, label: "Tanpa akun, cukup WhatsApp" },
   { icon: BatteryCharging, label: "Unit diserahkan baterai penuh" },
   { icon: ShieldCheck, label: "Harga dikonfirmasi sebelum bayar" },
 ];
 
-export default async function SewaMobilPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ layanan?: string }>;
-}) {
-  const { layanan } = await searchParams;
-  const initialServiceType = layanan ? SERVICE_QUERY[layanan] : undefined;
-
+export default function SewaMobilPage() {
   return (
     <>
       <section className="border-b border-ink-100 bg-linear-to-b from-brand-50 to-white">
@@ -58,7 +46,14 @@ export default async function SewaMobilPage({
       </section>
 
       <Container className="py-10 sm:py-14">
-        <BookingWizard initialServiceType={initialServiceType} />
+        {/*
+          `BookingWizard` reads `?layanan=` via `useSearchParams`, which needs a
+          Suspense boundary so the rest of this page can still be prerendered to
+          static HTML at build time.
+        */}
+        <Suspense fallback={<div className="min-h-[32rem]" aria-hidden="true" />}>
+          <BookingWizard />
+        </Suspense>
       </Container>
     </>
   );

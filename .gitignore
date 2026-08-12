@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local scratch
 /_to_delete
+
+# static export output
+/out
