@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   Design tokens — PT Jagayanigiri Sentosa
+   Single source of truth for colour, radius, shadow and motion.
+   Change values here; never hard-code hex values inside components.
+   ========================================================================== */
+@theme {
+  /* Brand — electric green/teal, evokes clean energy without looking neon */
+  --color-brand-50: #ecfdf6;
+  --color-brand-100: #d1fae7;
+  --color-brand-200: #a7f3d4;
+  --color-brand-300: #6ee7bc;
+  --color-brand-400: #34d3a1;
+  --color-brand-500: #12b285;
+  --color-brand-600: #04785a;
+  --color-brand-700: #047258;
+  --color-brand-800: #065b47;
+  --color-brand-900: #064b3c;
+  --color-brand-950: #022c23;
+
+  /* Ink — cool neutral used for text, borders and surfaces */
+  --color-ink-50: #f7f8fa;
+  --color-ink-100: #eef0f4;
+  --color-ink-200: #dfe3ea;
+  --color-ink-300: #c6ccd8;
+  --color-ink-400: #97a1b3;
+  --color-ink-500: #5f6a7d;
+  --color-ink-600: #4d5768;
+  --color-ink-700: #3a4354;
+  --color-ink-800: #232b3a;
+  --color-ink-900: #141b28;
+  --color-ink-950: #0a0f18;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 1rem;
+  --radius-field: 0.75rem;
+
+  --shadow-soft: 0 1px 2px 0 rgb(20 27 40 / 0.04), 0 8px 24px -12px rgb(20 27 40 / 0.12);
+  --shadow-lift: 0 2px 4px 0 rgb(20 27 40 / 0.05), 0 18px 40px -16px rgb(20 27 40 / 0.22);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* -----------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-ink-800);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Consistent, visible focus ring across every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Native date/time pickers render tiny on iOS without this. */
+  input[type="date"],
+  input[type="time"] {
+    min-height: 2.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Utilities
+   -------------------------------------------------------------------------- */
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem; /* 1280px */
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Subtle grid used behind the hero. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * NOTE: `animation-fill-mode: both` leaves a computed `transform` matrix on the
+ * element even after the animation ends, which makes it a containing block for
+ * `position: fixed` descendants. Use `animate-fade-rise` only on subtrees that
+ * contain no fixed elements; otherwise use the opacity-only `animate-fade-in`.
+ */
+@utility animate-fade-rise {
+  animation: fade-rise 0.35s var(--ease-out-soft) both;
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.3s var(--ease-out-soft) both;
+}
