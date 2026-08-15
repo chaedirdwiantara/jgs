@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BatteryCharging, Briefcase, Pencil, Trash2, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/card";
-import { accentLabels, tierLabels, type Vehicle } from "@/data/vehicles";
+import { tierLabels, type Vehicle } from "@/data/vehicles";
 import { formatIDR } from "@/lib/format";
 
 type VehicleListProps = {
@@ -39,8 +39,12 @@ function Thumbnail({ vehicle, className }: { vehicle: Vehicle; className?: strin
     <span
       className={`relative block shrink-0 overflow-hidden rounded-lg bg-ink-100 ring-1 ring-inset ring-ink-200 ${className}`}
     >
+      {/*
+       * Always the landscape studio shot — the frame is at most 96px, far too
+       * small for the art-directed portrait variant to be worth a second file.
+       */}
       <Image
-        src={vehicle.photo}
+        src={vehicle.photos.studio.wide}
         alt=""
         fill
         sizes="96px"
@@ -96,7 +100,6 @@ function MobileCards({ vehicles, onEdit, onDelete }: Omit<VehicleListProps, "bus
               <p className="mt-0.5 truncate font-mono text-xs text-ink-500">{vehicle.id}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Badge tone="brand">{tierLabels[vehicle.tier]}</Badge>
-                <Badge>{accentLabels[vehicle.accent]}</Badge>
               </div>
             </div>
           </div>
@@ -170,7 +173,6 @@ function DesktopTable({ vehicles, onEdit, onDelete }: Omit<VehicleListProps, "bu
               <td className="px-4 py-3">
                 <div className="flex flex-col items-start gap-1">
                   <Badge tone="brand">{tierLabels[vehicle.tier]}</Badge>
-                  <span className="text-xs text-ink-500">{accentLabels[vehicle.accent]}</span>
                 </div>
               </td>
 

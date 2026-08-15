@@ -22,9 +22,19 @@ const tierDescriptions: Record<VehicleTier, string> = {
   elite: "Kenyamanan kelas satu untuk rombongan, keluarga besar, atau tamu VIP.",
 };
 
+/**
+ * Below this many units, splitting the catalogue into tier sections produces
+ * headings above a single card stranded in a three-column grid. One grid reads
+ * better, and nothing is lost: every card already carries its tier badge.
+ * Grouping returns on its own once the fleet is large enough to compare within
+ * a tier.
+ */
+const GROUPING_THRESHOLD = 5;
+
 export default function ArmadaPage() {
   const vehicles = getVehicles();
   const locations = getLocations();
+  const groupByTier = vehicles.length >= GROUPING_THRESHOLD;
 
   return (
     <>
@@ -47,37 +57,51 @@ export default function ArmadaPage() {
         </Container>
       </section>
 
-      {tierOrder.map((tier, index) => {
-        const items = vehicles.filter((vehicle) => vehicle.tier === tier);
-        if (items.length === 0) return null;
+      {groupByTier ? (
+        tierOrder.map((tier, index) => {
+          const items = vehicles.filter((vehicle) => vehicle.tier === tier);
+          if (items.length === 0) return null;
 
-        return (
-          <Section
-            key={tier}
-            className={index % 2 === 0 ? "bg-white" : "bg-ink-50"}
-          >
-            <Container>
-              <h2 className="text-xl font-bold tracking-tight text-ink-900 sm:text-2xl">
-                {tierLabels[tier]}
-              </h2>
-              <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-600">
-                {tierDescriptions[tier]}
-              </p>
+          return (
+            <Section key={tier} className={index % 2 === 0 ? "bg-white" : "bg-ink-50"}>
+              <Container>
+                <h2 className="text-xl font-bold tracking-tight text-ink-900 sm:text-2xl">
+                  {tierLabels[tier]}
+                </h2>
+                <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-ink-600">
+                  {tierDescriptions[tier]}
+                </p>
 
-              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {items.map((vehicle) => (
-                  <VehicleCard
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    serviceType="rental-harian"
-                    showAction={false}
-                  />
-                ))}
-              </div>
-            </Container>
-          </Section>
-        );
-      })}
+                <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map((vehicle) => (
+                    <VehicleCard
+                      key={vehicle.id}
+                      vehicle={vehicle}
+                      serviceType="rental-harian"
+                      showAction={false}
+                    />
+                  ))}
+                </div>
+              </Container>
+            </Section>
+          );
+        })
+      ) : (
+        <Section>
+          <Container>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {vehicles.map((vehicle) => (
+                <VehicleCard
+                  key={vehicle.id}
+                  vehicle={vehicle}
+                  serviceType="rental-harian"
+                  showAction={false}
+                />
+              ))}
+            </div>
+          </Container>
+        </Section>
+      )}
 
       <Container className="pb-16 sm:pb-20">
         <div className="rounded-[var(--radius-card)] border border-ink-200 bg-ink-50 p-5 text-sm leading-relaxed text-ink-600">

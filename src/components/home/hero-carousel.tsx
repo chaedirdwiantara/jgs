@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { BatteryCharging, Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
 import { formatIDR } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -79,7 +79,12 @@ export function HeroCarousel({ vehicles }: HeroCarouselProps) {
           onFocusCapture={() => setInteracting(true)}
           onBlurCapture={() => setInteracting(false)}
         >
-          <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl bg-ink-950 ring-1 ring-inset ring-white/10">
+          {/*
+           * Portrait on phones, landscape from `sm` up — matching the two
+           * masters `FleetPhoto` switches between, so neither shape crops into
+           * the car.
+           */}
+          <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl bg-ink-950 ring-1 ring-inset ring-white/10 sm:aspect-16/10">
             {vehicles.map((vehicle, slide) => {
               const current = slide === index;
 
@@ -95,14 +100,11 @@ export function HeroCarousel({ vehicles }: HeroCarouselProps) {
                     current ? "opacity-100" : "opacity-0",
                   )}
                 >
-                  <Image
-                    src={vehicle.photo}
+                  <FleetPhoto
+                    photos={vehicle.photos.outdoor}
                     alt={`Foto ${vehicle.name}`}
-                    fill
-                    sizes="(min-width: 1024px) 32rem, (min-width: 640px) 60vw, 90vw"
                     /* Only the first slide is above the fold on load. */
                     priority={slide === 0}
-                    className="object-cover"
                   />
 
                   {/* Scrim so the caption stays legible over any photograph. */}

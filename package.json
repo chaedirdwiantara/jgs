@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "build:brand": "node scripts/build-brand-assets.mjs",
-    "build:fleet": "node scripts/build-fleet-placeholders.mjs"
+    "build:fleet": "node scripts/build-fleet-photos.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

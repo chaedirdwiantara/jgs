@@ -1,23 +1,25 @@
 import { z } from "zod";
 
-import { vehicleAccents, vehicleTiers } from "@/data/vehicles";
+import { vehicleTiers } from "@/data/vehicles";
 
 /** Lowercase slug — it is the vehicle's primary key and appears in URLs. */
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
- * Accepts a site-relative path (`/images/fleet/seal.jpg`) or an absolute
- * https URL, so photos can be served from `public/` today and from S3 later.
+ * Accepts a site-relative path (`/images/fleet/byd-m6-studio-wide.jpg`) or an
+ * absolute https URL, so photos can be served from `public/` today and from S3
+ * later.
  */
-const photoSchema = z
-  .string()
-  .trim()
-  .min(1, "Foto wajib diisi")
-  .max(500, "Alamat foto terlalu panjang")
-  .refine(
-    (value) => value.startsWith("/") || /^https:\/\/\S+$/.test(value),
-    "Gunakan path yang diawali / atau URL https://",
-  );
+const photo = (label: string) =>
+  z
+    .string()
+    .trim()
+    .min(1, `${label} wajib diisi`)
+    .max(500, `Alamat ${label.toLowerCase()} terlalu panjang`)
+    .refine(
+      (value) => value.startsWith("/") || /^https:\/\/\S+$/.test(value),
+      "Gunakan path yang diawali / atau URL https://",
+    );
 
 const rupiah = (label: string, max: number) =>
   z
@@ -48,7 +50,6 @@ export const vehicleFormSchema = z.object({
     .max(60, "Nama mobil maksimal 60 karakter"),
 
   tier: z.enum(vehicleTiers, { error: "Pilih kelas armada" }),
-  accent: z.enum(vehicleAccents, { error: "Pilih warna bodi" }),
 
   seats: count("Kapasitas kursi", 1, 12),
   luggage: count("Kapasitas bagasi", 0, 12),
@@ -78,7 +79,15 @@ export const vehicleFormSchema = z.object({
       "Setiap keunggulan maksimal 80 karakter",
     ),
 
-  photo: photoSchema,
+  /*
+   * Four separate URLs rather than one: each unit has an on-location and a
+   * studio scene, and each of those has a landscape and a portrait master that
+   * `FleetPhoto` swaps between at the `sm` breakpoint.
+   */
+  photoOutdoorWide: photo("Foto luar ruangan (lebar)"),
+  photoOutdoorTall: photo("Foto luar ruangan (tinggi)"),
+  photoStudioWide: photo("Foto studio (lebar)"),
+  photoStudioTall: photo("Foto studio (tinggi)"),
 });
 
 export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;

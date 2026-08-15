@@ -2,19 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type UseFormRegister } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import {
-  accentLabels,
-  tierLabels,
-  vehicleAccents,
-  vehicleTiers,
-  type Vehicle,
-} from "@/data/vehicles";
+import { tierLabels, vehicleTiers, type Vehicle } from "@/data/vehicles";
 import { RepositoryError, describeError } from "@/features/admin/repository";
 import { emptyVehicleForm, toFormValues, toVehicle } from "@/features/admin/mapper";
 import { slugify, vehicleFormSchema, type VehicleFormValues } from "@/features/admin/schema";
@@ -162,21 +156,16 @@ export function VehicleFormDialog({
               />
             </Field>
 
-            <Field htmlFor="tier" label="Kelas armada" error={errors.tier?.message}>
+            <Field
+              htmlFor="tier"
+              label="Kelas armada"
+              error={errors.tier?.message}
+              className="sm:col-span-2"
+            >
               <Select id="tier" invalid={Boolean(errors.tier)} {...register("tier")}>
                 {vehicleTiers.map((tier) => (
                   <option key={tier} value={tier}>
                     {tierLabels[tier]}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-
-            <Field htmlFor="accent" label="Warna bodi" error={errors.accent?.message}>
-              <Select id="accent" invalid={Boolean(errors.accent)} {...register("accent")}>
-                {vehicleAccents.map((accent) => (
-                  <option key={accent} value={accent}>
-                    {accentLabels[accent]}
                   </option>
                 ))}
               </Select>
@@ -284,25 +273,81 @@ export function VehicleFormDialog({
               />
             </Field>
 
-            <Field
-              htmlFor="photo"
-              label="Foto unit"
-              error={errors.photo?.message}
-              hint="Path di folder public (/images/fleet/nama.jpg) atau URL https://. Rasio 16:10."
-            >
-              <Input
-                id="photo"
-                autoComplete="off"
-                placeholder="/images/fleet/byd-seal.jpg"
-                invalid={Boolean(errors.photo)}
-                aria-describedby={errors.photo ? "photo-error" : "photo-hint"}
-                {...register("photo")}
-              />
-            </Field>
+          </div>
+        </FormSection>
+
+        <FormSection title="Foto">
+          <p className="-mt-1 text-xs leading-relaxed text-ink-500">
+            Setiap unit punya dua suasana — luar ruangan untuk beranda, studio
+            untuk halaman armada. Masing-masing butuh dua bentuk: versi{" "}
+            <strong className="font-semibold text-ink-700">lebar</strong> (lanskap)
+            dipakai mulai layar 640px, versi{" "}
+            <strong className="font-semibold text-ink-700">tinggi</strong> (potret)
+            dipakai di ponsel. Isi path folder public atau URL https://.
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PhotoField
+              id="photoOutdoorWide"
+              label="Luar ruangan — lebar"
+              placeholder="/images/fleet/byd-m6-outdoor-wide.jpg"
+              error={errors.photoOutdoorWide?.message}
+              register={register}
+            />
+            <PhotoField
+              id="photoOutdoorTall"
+              label="Luar ruangan — tinggi"
+              placeholder="/images/fleet/byd-m6-outdoor-tall.jpg"
+              error={errors.photoOutdoorTall?.message}
+              register={register}
+            />
+            <PhotoField
+              id="photoStudioWide"
+              label="Studio — lebar"
+              placeholder="/images/fleet/byd-m6-studio-wide.jpg"
+              error={errors.photoStudioWide?.message}
+              register={register}
+            />
+            <PhotoField
+              id="photoStudioTall"
+              label="Studio — tinggi"
+              placeholder="/images/fleet/byd-m6-studio-tall.jpg"
+              error={errors.photoStudioTall?.message}
+              register={register}
+            />
           </div>
         </FormSection>
       </form>
     </Modal>
+  );
+}
+
+/** The four photo inputs differ only by name, so they share one definition. */
+function PhotoField({
+  id,
+  label,
+  placeholder,
+  error,
+  register,
+}: {
+  id: keyof VehicleFormValues;
+  label: string;
+  placeholder: string;
+  error?: string;
+  register: UseFormRegister<VehicleFormValues>;
+}) {
+  return (
+    <Field htmlFor={id} label={label} error={error}>
+      <Input
+        id={id}
+        autoComplete="off"
+        spellCheck={false}
+        placeholder={placeholder}
+        invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        {...register(id)}
+      />
+    </Field>
   );
 }
 

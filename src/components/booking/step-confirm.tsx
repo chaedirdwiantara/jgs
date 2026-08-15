@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowLeft, Info, RotateCcw, ShieldCheck } from "lucide-react";
 
-import { VehicleIllustration } from "@/components/booking/vehicle-illustration";
+import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
 import type { Location } from "@/data/locations";
@@ -63,10 +63,12 @@ export function StepConfirm({ details, vehicle, location, onBack, onReset }: Pro
         <div className="lg:col-span-3">
           <div className="overflow-hidden rounded-[var(--radius-card)] border border-ink-200 bg-white shadow-soft">
             <div className="flex items-center gap-4 border-b border-ink-100 p-4">
-              <VehicleIllustration
-                vehicle={vehicle}
-                className="w-24 shrink-0 rounded-xl sm:w-32"
-              />
+              <span className="aspect-16/10 w-24 shrink-0 overflow-hidden rounded-xl bg-ink-100 sm:w-32">
+                <FleetPhoto
+                  photos={vehicle.photos.studio}
+                  alt={`Foto ${vehicle.name}`}
+                />
+              </span>
               <div className="min-w-0">
                 <Badge tone="brand">{tierLabels[vehicle.tier]}</Badge>
                 <h2 className="mt-1.5 truncate text-base font-bold text-ink-900">

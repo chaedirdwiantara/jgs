@@ -7,14 +7,16 @@ export const emptyVehicleForm: VehicleFormValues = {
   id: "",
   name: "",
   tier: "economy",
-  accent: "white",
   seats: 5,
   luggage: 2,
   rangeKm: 400,
   dailyRate: 0,
   transferRate: 0,
   highlights: "",
-  photo: "",
+  photoOutdoorWide: "",
+  photoOutdoorTall: "",
+  photoStudioWide: "",
+  photoStudioTall: "",
 };
 
 /** Form state → the shape the catalogue and the API speak. */
@@ -29,8 +31,16 @@ export function toVehicle(values: VehicleFormValues): Vehicle {
     dailyRate: values.dailyRate,
     transferRate: values.transferRate,
     highlights: splitHighlights(values.highlights),
-    accent: values.accent,
-    photo: values.photo.trim(),
+    photos: {
+      outdoor: {
+        wide: values.photoOutdoorWide.trim(),
+        tall: values.photoOutdoorTall.trim(),
+      },
+      studio: {
+        wide: values.photoStudioWide.trim(),
+        tall: values.photoStudioTall.trim(),
+      },
+    },
   };
 }
 
@@ -40,13 +50,15 @@ export function toFormValues(vehicle: Vehicle): VehicleFormValues {
     id: vehicle.id,
     name: vehicle.name,
     tier: vehicle.tier,
-    accent: vehicle.accent,
     seats: vehicle.seats,
     luggage: vehicle.luggage,
     rangeKm: vehicle.rangeKm,
     dailyRate: vehicle.dailyRate,
     transferRate: vehicle.transferRate,
     highlights: vehicle.highlights.join("\n"),
-    photo: vehicle.photo,
+    photoOutdoorWide: vehicle.photos.outdoor.wide,
+    photoOutdoorTall: vehicle.photos.outdoor.tall,
+    photoStudioWide: vehicle.photos.studio.wide,
+    photoStudioTall: vehicle.photos.studio.tall,
   };
 }

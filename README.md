@@ -80,13 +80,32 @@ Semua nilai sementara ditandai `TODO` / "PLACEHOLDER" pada berkas berikut:
    masing-masing titik.
 4. **`src/features/booking/constants.ts`** — `DURATION_DISCOUNTS` (kebijakan
    diskon sewa panjang). Kosongkan array untuk menonaktifkan.
-5. **Foto armada** — `public/images/fleet/<id>.svg` saat ini berisi placeholder
-   hasil generate (lihat *Aset merek & armada*). Ganti dengan foto asli rasio
-   **16:10**, lalu perbarui kolom `photo` di `src/data/vehicles.ts`. Tidak ada
-   komponen yang perlu diubah.
-
 Mengganti sumber data ke API/CMS cukup dilakukan di `getVehicles()` dan
 `getLocations()`; komponen tidak perlu diubah.
+
+## Foto armada
+
+Setiap unit punya **dua suasana × dua bentuk** (empat berkas):
+
+| Berkas | Dipakai di |
+| --- | --- |
+| `<id>-outdoor-wide.jpg` | korsel beranda, ≥640px |
+| `<id>-outdoor-tall.jpg` | korsel beranda, ponsel |
+| `<id>-studio-wide.jpg` | armada, pemilihan unit, admin, ≥640px |
+| `<id>-studio-tall.jpg` | armada, pemilihan unit, ponsel |
+
+Versi `tall` **bukan** potongan lain dari foto yang sama — itu foto yang sama di
+kanvas potret dengan isian blur di atas dan bawah. Karena itu ia dipakai di
+bingkai tinggi (ponsel) dan versi `wide` di bingkai lebar; memaksa `wide` masuk
+bingkai potret akan memotong bodi mobil.
+
+Pergantian sumber ini dilakukan `components/fleet/fleet-photo.tsx` memakai
+elemen `<picture>`. `next/image` tidak dipakai di sana karena ia hanya
+menukar *resolusi*, bukan *artwork* — inilah kasus art direction.
+
+Untuk menambah atau mengganti unit: simpan master ke `assets/fleet/` mengikuti
+pola nama `<id>-<suasana>-<lebar>x<tinggi>.jpg`, daftarkan `id`-nya di
+`scripts/build-fleet-photos.mjs`, lalu jalankan `npm run build:fleet`.
 
 ## Konsol admin (`/admin`)
 
@@ -139,11 +158,13 @@ manual:
 
 ```bash
 npm run build:brand      # logo header/footer, icon.png, apple-icon.png, favicon.ico
-npm run build:fleet      # placeholder foto armada 16:10
+npm run build:fleet      # 12 foto armada (3 unit × 2 suasana × 2 bentuk)
 ```
 
 `build:brand` membaca `assets/brand/jgs-logo-source.png`, memangkas margin
 transparannya, lalu menurunkan seluruh ukuran yang dipakai situs.
+`build:fleet` menurunkan `assets/fleet/*.jpg` ke lebar 900px (bentuk lebar) dan
+800px (bentuk tinggi) pada kualitas 70.
 
 ## Alur pemesanan
 

@@ -2,7 +2,7 @@
 
 import { BatteryCharging, Briefcase, Check, Users } from "lucide-react";
 
-import { VehicleIllustration } from "@/components/booking/vehicle-illustration";
+import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
@@ -38,8 +38,8 @@ export function VehicleCard({
           : "border-ink-200 shadow-soft hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-lift",
       )}
     >
-      <div className="relative">
-        <VehicleIllustration vehicle={vehicle} />
+      <div className="relative aspect-square overflow-hidden bg-ink-100 sm:aspect-16/10">
+        <FleetPhoto photos={vehicle.photos.studio} alt={`Foto ${vehicle.name}`} />
         <div className="absolute left-3 top-3 flex gap-2">
           <Badge tone="brand">{tierLabels[vehicle.tier]}</Badge>
         </div>
