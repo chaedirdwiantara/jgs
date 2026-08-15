@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
-import { WhatsAppFab } from "@/components/layout/whatsapp-fab";
 import { siteConfig } from "@/config/site";
 
 import "./globals.css";
@@ -48,7 +45,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#04785a",
+  /** `--color-brand-600`. Keep in sync with `globals.css`. */
+  themeColor: "#d90000",
   width: "device-width",
   initialScale: 1,
 };
@@ -64,21 +62,13 @@ export default function RootLayout({
      * default) while in-page anchors keep smooth scrolling.
      */
     <html lang="id" className={jakarta.variable} data-scroll-behavior="smooth">
-      <body className="flex min-h-dvh flex-col bg-white antialiased">
-        <a
-          href="#konten"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-full focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-        >
-          Lompat ke konten utama
-        </a>
-
-        <SiteHeader />
-        <main id="konten" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
-        <WhatsAppFab />
-      </body>
+      {/*
+       * Deliberately bare: the marketing header/footer live in
+       * `components/layout/site-chrome.tsx` and are applied by the `(site)`
+       * route group, so `/admin` can share the fonts and reset without
+       * inheriting a public-site shell it has no use for.
+       */}
+      <body className="flex min-h-dvh flex-col bg-white antialiased">{children}</body>
     </html>
   );
 }

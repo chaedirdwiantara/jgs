@@ -1,3 +1,4 @@
+import { AlertCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -41,7 +42,15 @@ export function Field({
       {children}
 
       {error ? (
-        <p id={htmlFor ? `${htmlFor}-error` : undefined} className="text-xs text-red-600">
+        <p
+          id={htmlFor ? `${htmlFor}-error` : undefined}
+          className="flex items-start gap-1.5 text-xs text-danger-600"
+        >
+          {/*
+           * The icon — not the colour — is what makes this unambiguously an
+           * error, since the brand palette is itself red (WCAG 1.4.1).
+           */}
+          <AlertCircle className="mt-px size-3.5 shrink-0" aria-hidden="true" />
           {error}
         </p>
       ) : hint ? (
@@ -57,5 +66,9 @@ export function Field({
 export const controlClasses =
   "w-full rounded-[var(--radius-field)] border border-ink-200 bg-white px-3.5 py-2.5 text-[15px] text-ink-900 shadow-xs transition-colors placeholder:text-ink-500 hover:border-ink-300 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15 disabled:cursor-not-allowed disabled:bg-ink-50";
 
+/**
+ * `danger-500` rather than a lighter tint: a 400-weight border only reaches
+ * 2.66:1 on white, below the 3:1 WCAG minimum for non-text indicators.
+ */
 export const controlErrorClasses =
-  "border-red-400 focus:border-red-500 focus:ring-red-500/15";
+  "border-danger-500 focus:border-danger-600 focus:ring-danger-500/15";

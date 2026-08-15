@@ -1,8 +1,9 @@
-import { ArrowRight, BatteryCharging, Leaf, Star } from "lucide-react";
+import { ArrowRight, Leaf, Star } from "lucide-react";
 
+import { HeroCarousel } from "@/components/home/hero-carousel";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
-import { getLowestDailyRate } from "@/data/vehicles";
+import { getLowestDailyRate, getVehicles } from "@/data/vehicles";
 import { formatIDR } from "@/lib/format";
 
 const stats = [
@@ -25,8 +26,14 @@ export function Hero() {
       />
 
       <Container className="relative py-16 sm:py-20 lg:py-28">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <div>
+        {/*
+         * Three cells rather than two columns of stacked content, so the source
+         * order can be copy → carousel → stats. On a phone that puts a car on
+         * screen right after the call to action; on `lg` the explicit
+         * row/column placement rebuilds the original two-column layout.
+         */}
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-0">
+          <div className="lg:col-start-1 lg:row-start-1">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-medium text-brand-200 ring-1 ring-inset ring-white/15">
               <Leaf className="size-3.5" aria-hidden="true" />
               Nol emisi, nol kebisingan
@@ -65,69 +72,34 @@ export function Hero() {
               per hari
             </p>
 
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-8">
-              {stats.map((stat) => (
-                <div key={stat.label}>
-                  <dt className="sr-only">{stat.label}</dt>
-                  <dd>
-                    <span className="block text-2xl font-extrabold tracking-tight text-white">
-                      {stat.value}
-                    </span>
-                    <span className="mt-1 block text-xs leading-snug text-ink-400">
-                      {stat.label}
-                    </span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
-          <div className="relative hidden lg:block">
-            <HeroArtwork />
+          {/*
+           * Rendered on mobile too: the fleet photos are the strongest reason to
+           * keep scrolling, and hiding them left the small-screen hero as a wall
+           * of text.
+           */}
+          <div className="relative lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-center">
+            <HeroCarousel vehicles={getVehicles()} />
           </div>
+
+          <dl className="grid max-w-md grid-cols-3 gap-4 border-t border-white/10 pt-8 lg:col-start-1 lg:row-start-2 lg:mt-10">
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <dt className="sr-only">{stat.label}</dt>
+                <dd>
+                  <span className="block text-2xl font-extrabold tracking-tight text-white">
+                    {stat.value}
+                  </span>
+                  <span className="mt-1 block text-xs leading-snug text-ink-400">
+                    {stat.label}
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </Container>
     </section>
-  );
-}
-
-function HeroArtwork() {
-  return (
-    <div className="relative mx-auto max-w-lg">
-      <div className="absolute inset-0 -rotate-3 rounded-[2rem] bg-white/5 ring-1 ring-inset ring-white/10" />
-      <div className="relative rounded-[2rem] bg-linear-to-br from-white/12 to-white/5 p-8 ring-1 ring-inset ring-white/15 backdrop-blur-sm">
-        <svg viewBox="0 0 320 180" className="w-full" role="img" aria-label="Ilustrasi mobil listrik">
-          <ellipse cx="160" cy="150" rx="128" ry="10" fill="#ffffff" opacity="0.06" />
-          <path
-            d="M42 124c-9 0-14-5-14-13 0-11 6-17 18-20l24-6 22-21c6-6 14-9 23-9h50c10 0 19 4 26 11l19 19 25 6c13 3 20 10 20 21 0 8-5 12-14 12H42Z"
-            fill="#12b285"
-          />
-          <path
-            d="M104 84 121 67c3-3 7-5 11-5h22v22h-50Zm60-22h20c5 0 10 2 14 6l16 16h-50V62Z"
-            fill="#022c23"
-            opacity="0.9"
-          />
-          <rect x="252" y="102" width="26" height="7" rx="3.5" fill="#ffffff" opacity="0.9" />
-          <g fill="#0a0f18">
-            <circle cx="96" cy="126" r="23" />
-            <circle cx="230" cy="126" r="23" />
-          </g>
-          <g fill="#f7f8fa">
-            <circle cx="96" cy="126" r="9" />
-            <circle cx="230" cy="126" r="9" />
-          </g>
-        </svg>
-
-        <div className="mt-6 flex items-center gap-3 rounded-2xl bg-ink-950/50 p-4 ring-1 ring-inset ring-white/10">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-500/20 text-brand-300">
-            <BatteryCharging className="size-5" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-white">Baterai penuh saat serah terima</p>
-            <p className="text-xs text-ink-400">Peta SPKLU rute Anda kami siapkan.</p>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

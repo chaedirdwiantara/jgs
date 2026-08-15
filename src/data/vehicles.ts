@@ -10,7 +10,9 @@
  * always confirmed by admin over WhatsApp — the same model Evista uses.
  */
 
-export type VehicleTier = "economy" | "premium" | "elite";
+export const vehicleTiers = ["economy", "premium", "elite"] as const;
+
+export type VehicleTier = (typeof vehicleTiers)[number];
 
 export type Vehicle = {
   id: string;
@@ -27,8 +29,27 @@ export type Vehicle = {
   /** Indicative one-way airport transfer rate, IDR. */
   transferRate: number;
   highlights: string[];
-  /** Drives the colour of the generated illustration. */
-  accent: "mint" | "teal" | "slate" | "sand";
+  /** Body paint. Drives the colour of the generated illustration. */
+  accent: VehicleAccent;
+  /**
+   * Landscape (16:10) photo of the unit, shown in the home hero carousel.
+   *
+   * ⚠️ Currently points at a generated placeholder — see
+   * `scripts/build-fleet-placeholders.mjs`. Swap in the real photograph at the
+   * same path (or any absolute URL) and nothing else has to change.
+   */
+  photo: string;
+};
+
+export const vehicleAccents = ["red", "silver", "graphite", "white"] as const;
+
+export type VehicleAccent = (typeof vehicleAccents)[number];
+
+export const accentLabels: Record<VehicleAccent, string> = {
+  red: "Merah",
+  silver: "Silver",
+  graphite: "Abu-abu gelap",
+  white: "Putih",
 };
 
 export const vehicles: Vehicle[] = [
@@ -42,7 +63,8 @@ export const vehicles: Vehicle[] = [
     dailyRate: 450_000,
     transferRate: 275_000,
     highlights: ["Lincah di dalam kota", "Parkir mudah", "Konsumsi paling irit"],
-    accent: "mint",
+    accent: "white",
+    photo: "/images/fleet/air-ev.svg",
   },
   {
     id: "dolphin",
@@ -54,7 +76,8 @@ export const vehicles: Vehicle[] = [
     dailyRate: 750_000,
     transferRate: 350_000,
     highlights: ["Kabin lega untuk 5 orang", "Fast charging", "Fitur keselamatan lengkap"],
-    accent: "teal",
+    accent: "silver",
+    photo: "/images/fleet/dolphin.svg",
   },
   {
     id: "ioniq-5",
@@ -66,7 +89,8 @@ export const vehicles: Vehicle[] = [
     dailyRate: 1_200_000,
     transferRate: 500_000,
     highlights: ["Interior premium", "Ruang kaki luas", "Pengisian daya sangat cepat"],
-    accent: "slate",
+    accent: "graphite",
+    photo: "/images/fleet/ioniq-5.svg",
   },
   {
     id: "seal",
@@ -78,7 +102,8 @@ export const vehicles: Vehicle[] = [
     dailyRate: 1_350_000,
     transferRate: 550_000,
     highlights: ["Sedan eksekutif", "Kedap suara", "Jarak tempuh terjauh"],
-    accent: "teal",
+    accent: "silver",
+    photo: "/images/fleet/seal.svg",
   },
   {
     id: "d9",
@@ -90,7 +115,8 @@ export const vehicles: Vehicle[] = [
     dailyRate: 2_500_000,
     transferRate: 950_000,
     highlights: ["Kursi kapten VIP", "Ideal untuk rombongan", "Kenyamanan kelas satu"],
-    accent: "sand",
+    accent: "red",
+    photo: "/images/fleet/d9.svg",
   },
 ];
 

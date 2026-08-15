@@ -113,7 +113,7 @@ export function SiteHeader() {
       )}
     >
       <div className="container-page flex h-16 items-center justify-between gap-4 lg:h-18">
-        <Logo />
+        <Logo priority />
 
         <nav aria-label="Navigasi utama" className="hidden lg:block">
           <ul className="flex items-center gap-1">

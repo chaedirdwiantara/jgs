@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:brand": "node scripts/build-brand-assets.mjs",
+    "build:fleet": "node scripts/build-fleet-placeholders.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

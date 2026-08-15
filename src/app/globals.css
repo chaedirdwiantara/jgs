@@ -6,18 +6,40 @@
    Change values here; never hard-code hex values inside components.
    ========================================================================== */
 @theme {
-  /* Brand — electric green/teal, evokes clean energy without looking neon */
-  --color-brand-50: #ecfdf6;
-  --color-brand-100: #d1fae7;
-  --color-brand-200: #a7f3d4;
-  --color-brand-300: #6ee7bc;
-  --color-brand-400: #34d3a1;
-  --color-brand-500: #12b285;
-  --color-brand-600: #04785a;
-  --color-brand-700: #047258;
-  --color-brand-800: #065b47;
-  --color-brand-900: #064b3c;
-  --color-brand-950: #022c23;
+  /*
+   * Brand — JGS red, sampled from the logo artwork (its dominant fill is
+   * #fa0202, which `brand-500` matches so the mark sits inside the palette).
+   *
+   * Pure logo red is too light to carry white text, so `brand-600` is the
+   * darkened primary: 5.32:1 on white, i.e. WCAG AA for normal text. Every
+   * pairing used in the UI is verified — see the table in README.
+   */
+  --color-brand-50: #fff1f1;
+  --color-brand-100: #ffe0e0;
+  --color-brand-200: #ffc6c6;
+  --color-brand-300: #ff9c9c;
+  --color-brand-400: #ff5f5f;
+  --color-brand-500: #fa2020;
+  --color-brand-600: #d90000;
+  --color-brand-700: #b50505;
+  --color-brand-800: #950c0c;
+  --color-brand-900: #7c1010;
+  --color-brand-950: #440303;
+
+  /*
+   * Danger — deliberately a cooler crimson (hue ≈347°) rather than the brand's
+   * pure red (hue 0°). With a red brand, error states would otherwise be
+   * indistinguishable from ordinary brand chrome. Colour is never the only
+   * signal: `Field` also renders an alert icon next to every error message.
+   */
+  --color-danger-50: #fff1f4;
+  --color-danger-100: #ffe4ea;
+  --color-danger-200: #fecdd8;
+  --color-danger-300: #fda4b9;
+  --color-danger-400: #fb7196;
+  --color-danger-500: #f43f6f;
+  --color-danger-600: #c81e4f;
+  --color-danger-700: #a71844;
 
   /* Ink — cool neutral used for text, borders and surfaces */
   --color-ink-50: #f7f8fa;
