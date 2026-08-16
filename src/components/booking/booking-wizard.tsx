@@ -1,20 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-
 import { StepConfirm } from "@/components/booking/step-confirm";
 import { StepDetails } from "@/components/booking/step-details";
 import { StepVehicle } from "@/components/booking/step-vehicle";
 import { Stepper } from "@/components/ui/stepper";
 import { WIZARD_STEPS } from "@/features/booking/constants";
-import type { ServiceType } from "@/features/booking/types";
 import { useBookingWizard } from "@/features/booking/use-booking-wizard";
-
-/** Values accepted by `?layanan=`, mapped to the service they preselect. */
-const SERVICE_QUERY: Record<string, ServiceType> = {
-  "rental-harian": "rental-harian",
-  "antar-jemput": "antar-jemput",
-};
 
 /**
  * Three-step booking flow:
@@ -22,29 +13,17 @@ const SERVICE_QUERY: Record<string, ServiceType> = {
  *
  * Navigation and collected data live in `useBookingWizard`; each step is a
  * presentational component that reports upward.
- *
- * The `?layanan=` preselection is read here rather than on the server so the
- * page stays statically exportable; the caller supplies a Suspense boundary.
  */
 export function BookingWizard() {
-  const layanan = useSearchParams().get("layanan");
-  const initialServiceType = layanan ? SERVICE_QUERY[layanan] : undefined;
-
-  const wizard = useBookingWizard(
-    initialServiceType ? { serviceType: initialServiceType } : undefined,
-  );
-
-  const { vehicle, location } = wizard;
+  const wizard = useBookingWizard();
+  const { vehicle } = wizard;
 
   /**
-   * The confirmation step needs both a vehicle and a location; if either is
-   * missing (e.g. the location changed and invalidated the choice) we fall back
-   * to the fleet step instead of rendering an empty screen.
+   * The confirmation step needs a vehicle; if none is selected we fall back to
+   * the fleet step instead of rendering an empty screen.
    */
   const activeStep =
-    wizard.currentStep === "konfirmasi" && !(vehicle && location)
-      ? "armada"
-      : wizard.currentStep;
+    wizard.currentStep === "konfirmasi" && !vehicle ? "armada" : wizard.currentStep;
 
   return (
     <div className="flex flex-col gap-8">
@@ -67,7 +46,6 @@ export function BookingWizard() {
         {activeStep === "armada" ? (
           <StepVehicle
             details={wizard.details}
-            location={location}
             vehicles={wizard.availableVehicles}
             selectedVehicleId={wizard.vehicleId}
             onSelect={wizard.selectVehicle}
@@ -75,11 +53,10 @@ export function BookingWizard() {
           />
         ) : null}
 
-        {activeStep === "konfirmasi" && vehicle && location ? (
+        {activeStep === "konfirmasi" && vehicle ? (
           <StepConfirm
             details={wizard.details}
             vehicle={vehicle}
-            location={location}
             onBack={() => wizard.goToStep(1)}
             onReset={wizard.reset}
           />

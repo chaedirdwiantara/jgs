@@ -56,7 +56,6 @@ export const vehicleFormSchema = z.object({
   rangeKm: count("Jarak tempuh", 50, 1500),
 
   dailyRate: rupiah("Tarif harian", 100_000_000),
-  transferRate: rupiah("Tarif antar-jemput", 100_000_000),
 
   /*
    * Entered as one line per point. Kept as a string in form state — an array

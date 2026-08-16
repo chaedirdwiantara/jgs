@@ -8,17 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { RadioCards } from "@/components/ui/radio-cards";
-import { getLocations } from "@/data/locations";
+import { serviceAreaLabel } from "@/data/service-areas";
 import {
   CUSTOMER_TYPES,
   DURATION_OPTIONS,
   MAX_LEAD_DAYS,
-  SERVICE_TYPES,
-  TRIP_TYPES,
 } from "@/features/booking/constants";
 import { normalizeBookingDetails } from "@/features/booking/normalize";
 import { bookingDetailsSchema } from "@/features/booking/schema";
-import type { BookingDetails, ServiceType } from "@/features/booking/types";
+import type { BookingDetails } from "@/features/booking/types";
 import { addDaysISO, todayISO } from "@/lib/format";
 
 type Props = {
@@ -26,14 +24,11 @@ type Props = {
   onSubmit: (values: BookingDetails) => void;
 };
 
-const locations = getLocations();
-
 export function StepDetails({ defaultValues, onSubmit }: Props) {
   const {
     register,
     handleSubmit,
     control,
-    resetField,
     formState: { errors, isSubmitting },
   } = useForm<BookingDetails>({
     resolver: zodResolver(bookingDetailsSchema),
@@ -41,29 +36,8 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
     mode: "onTouched",
   });
 
-  /**
-   * Switching service type hides one set of inputs. react-hook-form keeps
-   * unmounted values, so reset the branch the user is leaving — otherwise a
-   * half-filled schedule from the other mode travels with the submission.
-   */
-  const handleServiceTypeChange = (next: ServiceType, apply: (value: ServiceType) => void) => {
-    apply(next);
-    if (next === "rental-harian") {
-      resetField("pickupDate");
-      resetField("pickupTime");
-      resetField("destination");
-      resetField("tripType");
-    } else {
-      resetField("startDate");
-      resetField("durationDays");
-      resetField("deliveryAddress");
-    }
-  };
-
   // `useWatch` (rather than `watch`) so the subscription is compiler-safe.
-  const serviceType = useWatch({ control, name: "serviceType" });
   const customerType = useWatch({ control, name: "customerType" });
-  const isRental = serviceType === "rental-harian";
 
   const minDate = todayISO();
   const maxDate = addDaysISO(minDate, MAX_LEAD_DAYS);
@@ -74,26 +48,6 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
       noValidate
       className="flex flex-col gap-8"
     >
-      {/* --- Layanan --------------------------------------------------- */}
-      <FormSection
-        title="Jenis Layanan"
-        description="Pilih layanan yang Anda butuhkan. Kolom isian menyesuaikan otomatis."
-      >
-        <Controller
-          control={control}
-          name="serviceType"
-          render={({ field }) => (
-            <RadioCards
-              name="serviceType"
-              legend="Layanan"
-              options={SERVICE_TYPES}
-              value={field.value}
-              onChange={(next) => handleServiceTypeChange(next, field.onChange)}
-            />
-          )}
-        />
-      </FormSection>
-
       {/* --- Data pemesan ---------------------------------------------- */}
       <FormSection title="Data Pemesan">
         <Controller
@@ -164,163 +118,53 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
 
       {/* --- Jadwal ----------------------------------------------------- */}
       <FormSection
-        title="Lokasi & Jadwal"
-        description={
-          isRental
-            ? "Tentukan titik pengambilan unit dan lama sewa."
-            : "Tentukan titik penjemputan, waktu, dan tujuan Anda."
-        }
+        title="Jadwal Sewa"
+        description={`Tentukan tanggal mulai dan lama sewa. Titik serah terima unit di area ${serviceAreaLabel} kami sepakati bersama lewat WhatsApp.`}
       >
-        <Field
-          htmlFor="locationId"
-          label={isRental ? "Lokasi Pengambilan" : "Lokasi Penjemputan"}
-          error={errors.locationId?.message}
-        >
-          <Select
-            id="locationId"
-            invalid={Boolean(errors.locationId)}
-            aria-describedby={errors.locationId ? "locationId-error" : undefined}
-            defaultValue=""
-            {...register("locationId")}
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field
+            htmlFor="startDate"
+            label="Tanggal Mulai"
+            error={errors.startDate?.message}
           >
-            <option value="" disabled>
-              Pilih lokasi…
-            </option>
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>
-                {location.name} — {location.area}
-              </option>
-            ))}
-          </Select>
-        </Field>
-
-        {isRental ? (
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="startDate"
-              label="Tanggal Mulai"
-              error={errors.startDate?.message}
-            >
-              <Input
-                id="startDate"
-                type="date"
-                min={minDate}
-                max={maxDate}
-                invalid={Boolean(errors.startDate)}
-                aria-describedby={errors.startDate ? "startDate-error" : undefined}
-                {...register("startDate")}
-              />
-            </Field>
-
-            <Field
-              htmlFor="durationDays"
-              label="Durasi Sewa"
-              error={errors.durationDays?.message}
-            >
-              <Select
-                id="durationDays"
-                invalid={Boolean(errors.durationDays)}
-                aria-describedby={errors.durationDays ? "durationDays-error" : undefined}
-                {...register("durationDays", {
-                  setValueAs: (value) => (value === "" ? Number.NaN : Number(value)),
-                })}
-              >
-                {DURATION_OPTIONS.map((days) => (
-                  <option key={days} value={days}>
-                    {days} hari
-                  </option>
-                ))}
-              </Select>
-            </Field>
-
-            <Field
-              htmlFor="deliveryAddress"
-              label="Alamat Pengantaran"
-              optional
-              hint="Kosongkan bila unit diambil langsung di lokasi."
-              error={errors.deliveryAddress?.message}
-              className="sm:col-span-2"
-            >
-              <Input
-                id="deliveryAddress"
-                autoComplete="street-address"
-                placeholder="Nama gedung, jalan, kota"
-                invalid={Boolean(errors.deliveryAddress)}
-                aria-describedby={
-                  errors.deliveryAddress
-                    ? "deliveryAddress-error"
-                    : "deliveryAddress-hint"
-                }
-                {...register("deliveryAddress")}
-              />
-            </Field>
-          </div>
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              htmlFor="pickupDate"
-              label="Tanggal Jemput"
-              error={errors.pickupDate?.message}
-            >
-              <Input
-                id="pickupDate"
-                type="date"
-                min={minDate}
-                max={maxDate}
-                invalid={Boolean(errors.pickupDate)}
-                aria-describedby={errors.pickupDate ? "pickupDate-error" : undefined}
-                {...register("pickupDate")}
-              />
-            </Field>
-
-            <Field htmlFor="pickupTime" label="Jam Jemput" error={errors.pickupTime?.message}>
-              <Input
-                id="pickupTime"
-                type="time"
-                invalid={Boolean(errors.pickupTime)}
-                aria-describedby={errors.pickupTime ? "pickupTime-error" : undefined}
-                {...register("pickupTime")}
-              />
-            </Field>
-
-            <Field
-              htmlFor="destination"
-              label="Tujuan / Alamat Antar"
-              error={errors.destination?.message}
-              className="sm:col-span-2"
-            >
-              <Input
-                id="destination"
-                autoComplete="street-address"
-                placeholder="Contoh: Hotel Mulia, Senayan, Jakarta Pusat"
-                invalid={Boolean(errors.destination)}
-                aria-describedby={errors.destination ? "destination-error" : undefined}
-                {...register("destination")}
-              />
-            </Field>
-
-            <Controller
-              control={control}
-              name="tripType"
-              render={({ field }) => (
-                <RadioCards
-                  name="tripType"
-                  legend="Tipe Perjalanan"
-                  options={TRIP_TYPES}
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="sm:col-span-2"
-                />
-              )}
+            <Input
+              id="startDate"
+              type="date"
+              min={minDate}
+              max={maxDate}
+              invalid={Boolean(errors.startDate)}
+              aria-describedby={errors.startDate ? "startDate-error" : undefined}
+              {...register("startDate")}
             />
-          </div>
-        )}
+          </Field>
+
+          <Field
+            htmlFor="durationDays"
+            label="Durasi Sewa"
+            error={errors.durationDays?.message}
+          >
+            <Select
+              id="durationDays"
+              invalid={Boolean(errors.durationDays)}
+              aria-describedby={errors.durationDays ? "durationDays-error" : undefined}
+              {...register("durationDays", {
+                setValueAs: (value) => (value === "" ? Number.NaN : Number(value)),
+              })}
+            >
+              {DURATION_OPTIONS.map((days) => (
+                <option key={days} value={days}>
+                  {days} hari
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
 
         <Field
           htmlFor="notes"
           label="Catatan Tambahan"
           optional
-          hint="Misalnya: butuh child seat, dengan driver, atau permintaan khusus lain."
+          hint="Misalnya: alamat pengantaran, butuh child seat, dengan driver, atau permintaan khusus lain."
           error={errors.notes?.message}
         >
           <Textarea
@@ -337,7 +181,8 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <p className="leading-relaxed">
           Tidak perlu membuat akun. Setelah memilih armada, pesanan Anda dikirim ke
-          admin melalui WhatsApp untuk konfirmasi ketersediaan dan harga final.
+          admin melalui WhatsApp untuk konfirmasi ketersediaan unit, harga final,
+          dan titik serah terima.
         </p>
       </div>
 

@@ -6,7 +6,6 @@ import { ArrowLeft, CarFront } from "lucide-react";
 import { BookingRecap } from "@/components/booking/booking-recap";
 import { VehicleCard } from "@/components/booking/vehicle-card";
 import { Button } from "@/components/ui/button";
-import type { Location } from "@/data/locations";
 import type { Vehicle } from "@/data/vehicles";
 import { filterBySeats } from "@/features/booking/availability";
 import type { BookingDetails } from "@/features/booking/types";
@@ -14,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   details: BookingDetails;
-  location?: Location;
   vehicles: Vehicle[];
   selectedVehicleId: string;
   onSelect: (id: string) => void;
@@ -30,7 +28,6 @@ const SEAT_FILTERS = [
 
 export function StepVehicle({
   details,
-  location,
   vehicles,
   selectedVehicleId,
   onSelect,
@@ -45,13 +42,11 @@ export function StepVehicle({
 
   return (
     <div className="flex flex-col gap-6">
-      <BookingRecap details={details} location={location} onEdit={onBack} />
+      <BookingRecap details={details} onEdit={onBack} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-base font-bold text-ink-900">
-            Armada tersedia{location ? ` di ${location.name}` : ""}
-          </h2>
+          <h2 className="text-base font-bold text-ink-900">Armada tersedia</h2>
           <p className="mt-1 text-sm text-ink-500">
             {visible.length} unit ditemukan. Harga adalah estimasi awal.
           </p>
@@ -87,14 +82,13 @@ export function StepVehicle({
             <VehicleCard
               key={vehicle.id}
               vehicle={vehicle}
-              serviceType={details.serviceType}
               selected={vehicle.id === selectedVehicleId}
               onSelect={onSelect}
             />
           ))}
         </div>
       ) : (
-        <EmptyState hasLocation={Boolean(location)} onBack={onBack} />
+        <EmptyState onReset={() => setMinSeats(0)} />
       )}
 
       <div>
@@ -107,13 +101,7 @@ export function StepVehicle({
   );
 }
 
-function EmptyState({
-  hasLocation,
-  onBack,
-}: {
-  hasLocation: boolean;
-  onBack: () => void;
-}) {
+function EmptyState({ onReset }: { onReset: () => void }) {
   return (
     <div className="flex flex-col items-center gap-4 rounded-[var(--radius-card)] border border-dashed border-ink-300 bg-ink-50 px-6 py-14 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-white text-ink-400 shadow-soft">
@@ -121,18 +109,15 @@ function EmptyState({
       </span>
       <div>
         <p className="font-semibold text-ink-900">
-          {hasLocation
-            ? "Tidak ada unit yang cocok dengan filter"
-            : "Lokasi belum dipilih"}
+          Tidak ada unit yang cocok dengan filter
         </p>
         <p className="mt-1 max-w-sm text-sm text-ink-500">
-          {hasLocation
-            ? "Coba longgarkan filter kapasitas kursi, atau pilih lokasi layanan lain."
-            : "Kembali ke langkah sebelumnya untuk memilih lokasi layanan."}
+          Coba longgarkan filter kapasitas kursi untuk melihat seluruh armada yang
+          tersedia.
         </p>
       </div>
-      <Button variant="secondary" onClick={onBack}>
-        Ubah detail sewa
+      <Button variant="secondary" onClick={onReset}>
+        Tampilkan semua unit
       </Button>
     </div>
   );

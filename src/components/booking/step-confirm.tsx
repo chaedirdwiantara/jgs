@@ -6,7 +6,6 @@ import { ArrowLeft, Info, RotateCcw, ShieldCheck } from "lucide-react";
 import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
-import type { Location } from "@/data/locations";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
 import { estimatePrice } from "@/features/booking/pricing";
 import type { BookingDetails } from "@/features/booking/types";
@@ -15,22 +14,20 @@ import {
   buildWhatsAppUrl,
   createBookingReference,
 } from "@/features/booking/whatsapp";
-import { formatDateID, formatIDR, formatTimeID } from "@/lib/format";
+import { formatDateID, formatIDR } from "@/lib/format";
 
 type Props = {
   details: BookingDetails;
   vehicle: Vehicle;
-  location: Location;
   onBack: () => void;
   onReset: () => void;
 };
 
-export function StepConfirm({ details, vehicle, location, onBack, onReset }: Props) {
+export function StepConfirm({ details, vehicle, onBack, onReset }: Props) {
   // Stable for the lifetime of this step so the on-screen code matches the one
   // sent to WhatsApp.
   const [reference] = useState(createBookingReference);
 
-  const isRental = details.serviceType === "rental-harian";
   const estimate = useMemo(() => estimatePrice(details, vehicle), [details, vehicle]);
 
   const whatsappUrl = useMemo(
@@ -39,11 +36,10 @@ export function StepConfirm({ details, vehicle, location, onBack, onReset }: Pro
         buildWhatsAppMessage({
           booking: { ...details, vehicleId: vehicle.id },
           vehicle,
-          location,
           reference,
         }),
       ),
-    [details, vehicle, location, reference],
+    [details, vehicle, reference],
   );
 
   return (
@@ -81,7 +77,7 @@ export function StepConfirm({ details, vehicle, location, onBack, onReset }: Pro
             </div>
 
             <dl className="divide-y divide-ink-100">
-              <Row label="Layanan">{isRental ? "Rental Harian" : "Antar-Jemput"}</Row>
+              <Row label="Layanan">Rental Harian</Row>
               <Row label="Tipe Pelanggan">
                 {details.customerType === "perusahaan" ? "Perusahaan" : "Perorangan"}
               </Row>
@@ -90,29 +86,8 @@ export function StepConfirm({ details, vehicle, location, onBack, onReset }: Pro
                 <Row label="Perusahaan">{details.companyName}</Row>
               ) : null}
               <Row label="WhatsApp">{details.whatsapp}</Row>
-              <Row label="Lokasi">
-                {location.name}
-                <span className="block text-ink-500">{location.area}</span>
-              </Row>
-
-              {isRental ? (
-                <>
-                  <Row label="Tanggal Mulai">{formatDateID(details.startDate)}</Row>
-                  <Row label="Durasi">{details.durationDays} hari</Row>
-                  {details.deliveryAddress ? (
-                    <Row label="Alamat Pengantaran">{details.deliveryAddress}</Row>
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  <Row label="Tanggal Jemput">{formatDateID(details.pickupDate)}</Row>
-                  <Row label="Jam Jemput">{formatTimeID(details.pickupTime, location.timeZoneLabel)}</Row>
-                  <Row label="Tujuan">{details.destination}</Row>
-                  <Row label="Perjalanan">
-                    {details.tripType === "pulang-pergi" ? "Pulang-Pergi" : "Sekali Jalan"}
-                  </Row>
-                </>
-              )}
+              <Row label="Tanggal Mulai">{formatDateID(details.startDate)}</Row>
+              <Row label="Durasi">{details.durationDays} hari</Row>
 
               {details.notes ? <Row label="Catatan">{details.notes}</Row> : null}
             </dl>
@@ -154,8 +129,8 @@ export function StepConfirm({ details, vehicle, location, onBack, onReset }: Pro
             <div className="mt-4 flex items-start gap-2.5 rounded-[var(--radius-field)] bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
               <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <p>
-                Angka di atas adalah estimasi. Harga final dan ketersediaan unit
-                dikonfirmasi oleh admin melalui WhatsApp.
+                Angka di atas adalah estimasi. Harga final, ketersediaan unit, dan
+                titik serah terima dikonfirmasi oleh admin melalui WhatsApp.
               </p>
             </div>
 

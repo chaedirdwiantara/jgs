@@ -1,44 +1,8 @@
-import type {
-  BookingDetails,
-  CustomerType,
-  ServiceType,
-  TripType,
-  WizardStepId,
-} from "./types";
-
-export const SERVICE_TYPES: {
-  value: ServiceType;
-  label: string;
-  description: string;
-}[] = [
-  {
-    value: "rental-harian",
-    label: "Rental Harian",
-    description: "Sewa unit per hari, lepas kunci atau dengan driver.",
-  },
-  {
-    value: "antar-jemput",
-    label: "Antar-Jemput",
-    description: "Penjemputan bandara atau titik lain, sekali jalan / PP.",
-  },
-];
+import type { BookingDetails, CustomerType, WizardStepId } from "./types";
 
 export const CUSTOMER_TYPES: { value: CustomerType; label: string }[] = [
   { value: "perorangan", label: "Perorangan" },
   { value: "perusahaan", label: "Perusahaan" },
-];
-
-export const TRIP_TYPES: { value: TripType; label: string; description: string }[] = [
-  {
-    value: "sekali-jalan",
-    label: "Sekali Jalan",
-    description: "Satu kali perjalanan menuju tujuan.",
-  },
-  {
-    value: "pulang-pergi",
-    label: "Pulang-Pergi",
-    description: "Termasuk perjalanan kembali.",
-  },
 ];
 
 export const MIN_DURATION_DAYS = 1;
@@ -59,19 +23,12 @@ export const WIZARD_STEPS: { id: WizardStepId; label: string; hint: string }[] =
 ];
 
 export const defaultBookingDetails: BookingDetails = {
-  serviceType: "rental-harian",
   customerType: "perorangan",
   fullName: "",
   companyName: "",
   whatsapp: "",
-  locationId: "",
   startDate: "",
   durationDays: 1,
-  deliveryAddress: "",
-  pickupDate: "",
-  pickupTime: "",
-  destination: "",
-  tripType: "sekali-jalan",
   notes: "",
 };
 

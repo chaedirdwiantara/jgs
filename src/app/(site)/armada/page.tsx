@@ -4,13 +4,13 @@ import { ArrowRight } from "lucide-react";
 import { VehicleCard } from "@/components/booking/vehicle-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Container, Section } from "@/components/ui/section";
-import { getLocations } from "@/data/locations";
+import { serviceAreaLabel } from "@/data/service-areas";
 import { getVehicles, tierLabels, type VehicleTier } from "@/data/vehicles";
 
 export const metadata: Metadata = {
   title: "Armada Mobil Listrik",
   description:
-    "Daftar lengkap armada kendaraan listrik yang tersedia untuk rental harian dan antar-jemput bandara, beserta kapasitas dan estimasi tarifnya.",
+    "Daftar lengkap armada kendaraan listrik yang tersedia untuk rental harian di wilayah Jabodetabek, beserta kapasitas dan estimasi tarifnya.",
   alternates: { canonical: "/armada" },
 };
 
@@ -33,7 +33,6 @@ const GROUPING_THRESHOLD = 5;
 
 export default function ArmadaPage() {
   const vehicles = getVehicles();
-  const locations = getLocations();
   const groupByTier = vehicles.length >= GROUPING_THRESHOLD;
 
   return (
@@ -47,8 +46,9 @@ export default function ArmadaPage() {
             Pilih unit yang paling sesuai
           </h1>
           <p className="mt-3 max-w-2xl text-pretty text-[15px] leading-relaxed text-ink-600 sm:text-base">
-            Seluruh armada kami berbasis listrik dan tersedia di {locations.length} titik
-            layanan. Ketersediaan unit berbeda di tiap lokasi — periksa saat memesan.
+            Seluruh armada kami berbasis listrik dan siap diantar ke alamat Anda di
+            wilayah {serviceAreaLabel}. Ketersediaan unit dapat berubah — periksa saat
+            memesan.
           </p>
           <ButtonLink href="/sewa-mobil" size="lg" className="mt-7 w-full sm:w-auto">
             Cek ketersediaan
@@ -77,7 +77,6 @@ export default function ArmadaPage() {
                     <VehicleCard
                       key={vehicle.id}
                       vehicle={vehicle}
-                      serviceType="rental-harian"
                       showAction={false}
                     />
                   ))}
@@ -94,7 +93,6 @@ export default function ArmadaPage() {
                 <VehicleCard
                   key={vehicle.id}
                   vehicle={vehicle}
-                  serviceType="rental-harian"
                   showAction={false}
                 />
               ))}
@@ -107,7 +105,7 @@ export default function ArmadaPage() {
         <div className="rounded-[var(--radius-card)] border border-ink-200 bg-ink-50 p-5 text-sm leading-relaxed text-ink-600">
           <strong className="font-semibold text-ink-900">Catatan harga.</strong> Tarif
           yang tampil adalah estimasi awal untuk sewa harian dan dapat berubah mengikuti
-          durasi, lokasi, serta ketersediaan unit. Harga final selalu dikonfirmasi oleh
+          durasi serta ketersediaan unit. Harga final selalu dikonfirmasi oleh
           admin melalui WhatsApp sebelum pemesanan disahkan.
         </div>
       </Container>

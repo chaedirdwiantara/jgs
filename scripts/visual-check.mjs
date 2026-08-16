@@ -54,10 +54,9 @@ for (const vp of viewports) {
   await page.waitForTimeout(400);
   await page.screenshot({ path: `${OUT}/${vp.name}-step1-errors.png`, fullPage: true });
 
-  // Fill the rental branch.
+  // Fill the booking details.
   await page.fill("#fullName", "Budi Santoso");
   await page.fill("#whatsapp", "081234567890");
-  await page.selectOption("#locationId", "soetta");
   const start = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
   await page.fill("#startDate", start);
   await page.selectOption("#durationDays", "7");
@@ -67,7 +66,7 @@ for (const vp of viewports) {
   await page.screenshot({ path: `${OUT}/${vp.name}-step2.png`, fullPage: true });
 
   // Pick a vehicle.
-  await page.getByRole("button", { name: /Pilih Hyundai IONIQ 5/i }).click();
+  await page.getByRole("button", { name: /^Pilih BYD ATTO 1$/i }).click();
   await page.waitForTimeout(700);
   await page.screenshot({ path: `${OUT}/${vp.name}-step3.png`, fullPage: true });
 
@@ -78,23 +77,21 @@ for (const vp of viewports) {
   console.log(`[${vp.name}] wa link ok:`, waHref?.startsWith("https://wa.me/"));
   console.log(`[${vp.name}] decoded:`, decodeURIComponent(waHref?.split("text=")[1] ?? "").slice(0, 400));
 
-  // Antar-jemput branch (desktop only, to keep the run short).
+  // Corporate branch (desktop only, to keep the run short).
   if (!vp.isMobile) {
-    await page.goto(`${BASE}/sewa-mobil?layanan=antar-jemput`, { waitUntil: "networkidle" });
+    await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
+    await page.locator('label[for="customerType-perusahaan"]').click();
     await page.fill("#fullName", "Siti Rahayu");
+    await page.fill("#companyName", "PT Sumber Makmur");
     await page.fill("#whatsapp", "+6281199887766");
-    await page.selectOption("#locationId", "ngurah-rai");
-    await page.fill("#pickupDate", start);
-    await page.fill("#pickupTime", "09:30");
-    await page.fill("#destination", "Hotel Mulia, Nusa Dua");
-    await page.getByRole("button", { name: /Pulang-Pergi/i }).first().click().catch(() => {});
-    await page.getByLabel(/Pulang-Pergi/i).first().check().catch(() => {});
+    await page.fill("#startDate", start);
+    await page.selectOption("#durationDays", "14");
     await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
     await page.waitForTimeout(700);
-    await page.screenshot({ path: `${OUT}/${vp.name}-transfer-step2.png`, fullPage: true });
-    await page.getByRole("button", { name: /Pilih Denza D9/i }).click();
+    await page.screenshot({ path: `${OUT}/${vp.name}-corporate-step2.png`, fullPage: true });
+    await page.getByRole("button", { name: /^Pilih BYD M6$/i }).click();
     await page.waitForTimeout(700);
-    await page.screenshot({ path: `${OUT}/${vp.name}-transfer-step3.png`, fullPage: true });
+    await page.screenshot({ path: `${OUT}/${vp.name}-corporate-step3.png`, fullPage: true });
   }
 
   // Mobile drawer.

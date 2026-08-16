@@ -1,23 +1,18 @@
-import { getLocationById } from "@/data/locations";
 import { getVehicles, type Vehicle } from "@/data/vehicles";
 
 /**
- * Vehicles offered at a given service point. Returns an empty list for an
- * unknown location so callers can render an explicit "no unit" state rather
- * than silently falling back to the whole fleet.
+ * The fleet offered in the booking flow.
+ *
+ * Today that is simply the whole catalogue — every unit is bookable across the
+ * Jabodetabek service area. This function is the seam where real availability
+ * (per date, per unit) will be resolved once the backend exposes it, so no
+ * screen has to change when it does.
  */
-export function getVehiclesForLocation(locationId: string): Vehicle[] {
-  const location = getLocationById(locationId);
-  if (!location) return [];
-
-  const order = new Map(location.vehicleIds.map((id, index) => [id, index]));
-
-  return getVehicles()
-    .filter((vehicle) => order.has(vehicle.id))
-    .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+export function getAvailableVehicles(): Vehicle[] {
+  return getVehicles();
 }
 
-/** Vehicles at `locationId` that can also seat `passengers` people. */
+/** Vehicles that can seat at least `minSeats` people. */
 export function filterBySeats(vehicles: Vehicle[], minSeats: number): Vehicle[] {
   if (!minSeats) return vehicles;
   return vehicles.filter((vehicle) => vehicle.seats >= minSeats);

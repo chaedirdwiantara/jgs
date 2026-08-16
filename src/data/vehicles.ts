@@ -26,8 +26,6 @@ export type Vehicle = {
   rangeKm: number;
   /** Indicative daily rate, IDR. */
   dailyRate: number;
-  /** Indicative one-way airport transfer rate, IDR. */
-  transferRate: number;
   highlights: string[];
   /**
    * Two scenes, each in two shapes. `FleetPhoto` picks the shape by viewport:
@@ -59,7 +57,6 @@ export const vehicles: Vehicle[] = [
     luggage: 2,
     rangeKm: 300,
     dailyRate: 450_000,
-    transferRate: 275_000,
     highlights: ["Lincah di dalam kota", "Parkir mudah", "Konsumsi paling irit"],
     photos: {
       outdoor: {
@@ -80,7 +77,6 @@ export const vehicles: Vehicle[] = [
     luggage: 3,
     rangeKm: 460,
     dailyRate: 750_000,
-    transferRate: 350_000,
     highlights: [
       "Kabin lapang dan senyap",
       "Kursi belakang dapat direbahkan",
@@ -105,7 +101,6 @@ export const vehicles: Vehicle[] = [
     luggage: 4,
     rangeKm: 530,
     dailyRate: 1_200_000,
-    transferRate: 500_000,
     highlights: ["Tiga baris kursi", "Ideal untuk rombongan", "Kenyamanan kelas satu"],
     photos: {
       outdoor: {

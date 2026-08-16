@@ -26,12 +26,7 @@ export function FleetPreview() {
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {vehicles.map((vehicle) => (
-            <VehicleCard
-              key={vehicle.id}
-              vehicle={vehicle}
-              serviceType="rental-harian"
-              showAction={false}
-            />
+            <VehicleCard key={vehicle.id} vehicle={vehicle} showAction={false} />
           ))}
         </div>
 

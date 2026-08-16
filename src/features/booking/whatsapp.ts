@@ -1,12 +1,7 @@
 import { siteConfig } from "@/config/site";
-import type { Location } from "@/data/locations";
+import { serviceAreaLabel } from "@/data/service-areas";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
-import {
-  formatDateID,
-  formatIDR,
-  formatTimeID,
-  toWhatsAppNumber,
-} from "@/lib/format";
+import { formatDateID, formatIDR, toWhatsAppNumber } from "@/lib/format";
 
 import { estimatePrice } from "./pricing";
 import type { Booking } from "./types";
@@ -14,7 +9,6 @@ import type { Booking } from "./types";
 type MessageContext = {
   booking: Booking;
   vehicle: Vehicle;
-  location: Location;
   /** Human-readable reference so admin and customer speak the same language. */
   reference: string;
 };
@@ -26,17 +20,15 @@ type MessageContext = {
 export function buildWhatsAppMessage({
   booking,
   vehicle,
-  location,
   reference,
 }: MessageContext): string {
   const estimate = estimatePrice(booking, vehicle);
-  const isRental = booking.serviceType === "rental-harian";
 
   const lines: string[] = [
     `Halo ${siteConfig.brandName}, saya ingin memesan mobil listrik.`,
     "",
     `*No. Referensi:* ${reference}`,
-    `*Layanan:* ${isRental ? "Rental Harian" : "Antar-Jemput"}`,
+    `*Layanan:* Rental Harian`,
     "",
     "*Data Pemesan*",
     `• Tipe: ${booking.customerType === "perusahaan" ? "Perusahaan" : "Perorangan"}`,
@@ -47,26 +39,12 @@ export function buildWhatsAppMessage({
     lines.push(`• Perusahaan: ${booking.companyName}`);
   }
 
-  lines.push(`• WhatsApp: ${booking.whatsapp}`, "", "*Jadwal*", `• Lokasi: ${location.name} (${location.area})`);
-
-  if (isRental) {
-    lines.push(
-      `• Tanggal mulai: ${formatDateID(booking.startDate)}`,
-      `• Durasi: ${booking.durationDays} hari`,
-    );
-    if (booking.deliveryAddress) {
-      lines.push(`• Alamat pengantaran: ${booking.deliveryAddress}`);
-    }
-  } else {
-    lines.push(
-      `• Tanggal jemput: ${formatDateID(booking.pickupDate)}`,
-      `• Jam jemput: ${formatTimeID(booking.pickupTime, location.timeZoneLabel)}`,
-      `• Tujuan: ${booking.destination}`,
-      `• Perjalanan: ${booking.tripType === "pulang-pergi" ? "Pulang-Pergi" : "Sekali Jalan"}`,
-    );
-  }
-
   lines.push(
+    `• WhatsApp: ${booking.whatsapp}`,
+    "",
+    "*Jadwal*",
+    `• Tanggal mulai: ${formatDateID(booking.startDate)}`,
+    `• Durasi: ${booking.durationDays} hari`,
     "",
     "*Armada*",
     `• Unit: ${vehicle.name} (${tierLabels[vehicle.tier]})`,
@@ -85,7 +63,10 @@ export function buildWhatsAppMessage({
     lines.push("", "*Catatan*", booking.notes);
   }
 
-  lines.push("", "Mohon dikonfirmasi ketersediaan unit dan harga finalnya. Terima kasih.");
+  lines.push(
+    "",
+    `Mohon dikonfirmasi ketersediaan unit, harga finalnya, serta titik serah terima unit di area ${serviceAreaLabel}. Terima kasih.`,
+  );
 
   return lines.join("\n");
 }

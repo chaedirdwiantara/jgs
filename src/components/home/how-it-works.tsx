@@ -7,13 +7,13 @@ const steps = [
     icon: ClipboardList,
     title: "Isi detail sewa",
     description:
-      "Pilih jenis layanan, isi data pemesan, lokasi, dan jadwal. Tidak perlu membuat akun.",
+      "Masukkan data pemesan, tanggal mulai, dan lama sewa. Tidak perlu membuat akun.",
   },
   {
     icon: CarFront,
     title: "Pilih armada",
     description:
-      "Kami tampilkan unit yang tersedia di lokasi Anda beserta kapasitas dan estimasi tarifnya.",
+      "Kami tampilkan unit yang tersedia beserta kapasitas dan estimasi tarifnya.",
   },
   {
     icon: MessageCircle,

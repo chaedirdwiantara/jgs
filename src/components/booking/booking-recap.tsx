@@ -1,12 +1,10 @@
-import { CalendarDays, MapPin, PencilLine, Users } from "lucide-react";
+import { CalendarDays, CalendarRange, PencilLine, User } from "lucide-react";
 
-import type { Location } from "@/data/locations";
 import type { BookingDetails } from "@/features/booking/types";
-import { formatDateShortID, formatTimeID } from "@/lib/format";
+import { formatDateShortID } from "@/lib/format";
 
 type Props = {
   details: BookingDetails;
-  location?: Location;
   onEdit?: () => void;
 };
 
@@ -14,28 +12,19 @@ type Props = {
  * Slim recap of step 1, shown above the fleet grid so the user can verify
  * their inputs without navigating back.
  */
-export function BookingRecap({ details, location, onEdit }: Props) {
-  const isRental = details.serviceType === "rental-harian";
-
-  const schedule = isRental
-    ? `${formatDateShortID(details.startDate)} · ${details.durationDays} hari`
-    : `${formatDateShortID(details.pickupDate)} · ${formatTimeID(
-        details.pickupTime,
-        location?.timeZoneLabel ?? "WIB",
-      )}`;
-
+export function BookingRecap({ details, onEdit }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-[var(--radius-card)] border border-ink-200 bg-ink-50 p-4">
-      <RecapItem icon={<MapPin className="size-4" />} label="Lokasi">
-        {location?.name ?? "—"}
+      <RecapItem icon={<CalendarDays className="size-4" />} label="Mulai">
+        {formatDateShortID(details.startDate) || "—"}
       </RecapItem>
 
-      <RecapItem icon={<CalendarDays className="size-4" />} label="Jadwal">
-        {schedule}
+      <RecapItem icon={<CalendarRange className="size-4" />} label="Durasi">
+        {details.durationDays} hari
       </RecapItem>
 
-      <RecapItem icon={<Users className="size-4" />} label="Layanan">
-        {isRental ? "Rental Harian" : "Antar-Jemput"}
+      <RecapItem icon={<User className="size-4" />} label="Pemesan">
+        {details.fullName || "—"}
       </RecapItem>
 
       {onEdit ? (

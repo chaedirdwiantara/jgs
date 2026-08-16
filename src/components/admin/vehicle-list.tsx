@@ -125,9 +125,7 @@ function MobileCards({ vehicles, onEdit, onDelete }: Omit<VehicleListProps, "bus
           <div className="mt-3 flex items-end justify-between gap-3 border-t border-ink-100 pt-3">
             <div>
               <p className="text-sm font-bold text-ink-900">{formatIDR(vehicle.dailyRate)}</p>
-              <p className="text-xs text-ink-500">
-                harian · antar-jemput {formatIDR(vehicle.transferRate)}
-              </p>
+              <p className="text-xs text-ink-500">per hari</p>
             </div>
             <ActionButtons vehicle={vehicle} onEdit={onEdit} onDelete={onDelete} />
           </div>
@@ -148,7 +146,6 @@ function DesktopTable({ vehicles, onEdit, onDelete }: Omit<VehicleListProps, "bu
             <th scope="col" className="px-4 py-3 font-semibold">Kelas</th>
             <th scope="col" className="px-4 py-3 font-semibold">Kapasitas</th>
             <th scope="col" className="px-4 py-3 text-right font-semibold">Tarif harian</th>
-            <th scope="col" className="px-4 py-3 text-right font-semibold">Antar-jemput</th>
             <th scope="col" className="px-4 py-3 text-right font-semibold">
               <span className="sr-only">Aksi</span>
             </th>
@@ -185,10 +182,6 @@ function DesktopTable({ vehicles, onEdit, onDelete }: Omit<VehicleListProps, "bu
 
               <td className="whitespace-nowrap px-4 py-3 text-right font-semibold text-ink-900">
                 {formatIDR(vehicle.dailyRate)}
-              </td>
-
-              <td className="whitespace-nowrap px-4 py-3 text-right text-ink-600">
-                {formatIDR(vehicle.transferRate)}
               </td>
 
               <td className="px-4 py-3">

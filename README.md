@@ -44,7 +44,7 @@ src/
     layout/                 # header, footer, logo, FAB WhatsApp, SiteChrome
     ui/                     # primitif: Button, Input, Select, Field, Modal…
   config/site.ts            # identitas & kontak perusahaan  ← WAJIB DIUBAH
-  data/                     # katalog armada, lokasi, FAQ     ← WAJIB DIUBAH
+  data/                     # katalog armada, area layanan, FAQ ← WAJIB DIUBAH
   features/
     admin/                  # domain layer admin (tanpa UI)
       config.ts schema.ts mapper.ts
@@ -74,14 +74,13 @@ Semua nilai sementara ditandai `TODO` / "PLACEHOLDER" pada berkas berikut:
 1. **`src/config/site.ts`** — nama domain, nomor WhatsApp admin, telepon,
    email, alamat, jam operasional, tautan media sosial.
    Nomor WhatsApp dinormalisasi otomatis (`08…`, `+62…`, `62…` semuanya valid).
-2. **`src/data/vehicles.ts`** — daftar unit, tarif harian, tarif antar-jemput,
-   kapasitas, dan jarak tempuh. Angka saat ini adalah nilai indikatif.
-3. **`src/data/locations.ts`** — titik layanan dan unit yang tersedia di
-   masing-masing titik.
+2. **`src/data/vehicles.ts`** — daftar unit, tarif harian, kapasitas, dan
+   jarak tempuh. Angka saat ini adalah nilai indikatif.
+3. **`src/data/service-areas.ts`** — wilayah operasional (Jabodetabek).
 4. **`src/features/booking/constants.ts`** — `DURATION_DISCOUNTS` (kebijakan
    diskon sewa panjang). Kosongkan array untuk menonaktifkan.
 Mengganti sumber data ke API/CMS cukup dilakukan di `getVehicles()` dan
-`getLocations()`; komponen tidak perlu diubah.
+`getAvailableVehicles()`; komponen tidak perlu diubah.
 
 ## Foto armada
 
@@ -168,12 +167,12 @@ transparannya, lalu menurunkan seluruh ukuran yang dipakai situs.
 
 ## Alur pemesanan
 
-1. **Detail Sewa** — jenis layanan (Rental Harian / Antar-Jemput), tipe
-   pelanggan, nama, WhatsApp, lokasi, dan jadwal. Kolom isian berubah mengikuti
-   jenis layanan; validasi menolak nomor tidak valid, tanggal lampau, dan
-   tanggal lebih dari 180 hari ke depan.
-2. **Pilih Armada** — hanya menampilkan unit yang tersedia di lokasi terpilih,
-   dengan filter kapasitas kursi dan estimasi tarif sesuai jenis layanan.
+1. **Detail Sewa** — tipe pelanggan, nama, WhatsApp, tanggal mulai, dan lama
+   sewa. Validasi menolak nomor tidak valid, tanggal lampau, dan tanggal lebih
+   dari 180 hari ke depan. Titik serah terima unit tidak diminta di formulir —
+   disepakati bersama admin lewat WhatsApp.
+2. **Pilih Armada** — menampilkan unit yang tersedia, dengan filter kapasitas
+   kursi dan estimasi tarif harian.
 3. **Konfirmasi** — ringkasan lengkap, rincian estimasi biaya, nomor
    referensi, lalu tombol *Pesan via WhatsApp* yang membuka `wa.me` berisi
    ringkasan siap kirim.

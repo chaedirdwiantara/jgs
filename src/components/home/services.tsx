@@ -1,25 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, CalendarRange, PlaneLanding } from "lucide-react";
+import { ArrowRight, CalendarRange, Check } from "lucide-react";
 
 import { Container, Section, SectionHeading } from "@/components/ui/section";
+import { serviceAreaLabel } from "@/data/service-areas";
 
-const services = [
-  {
-    icon: CalendarRange,
-    title: "Rental Harian",
-    description:
-      "Sewa unit per hari untuk kebutuhan pribadi maupun operasional perusahaan. Tersedia lepas kunci atau dengan driver.",
-    points: ["Durasi 1–30 hari", "Antar unit ke alamat Anda", "Tarif khusus sewa mingguan"],
-    href: "/sewa-mobil?layanan=rental-harian",
-  },
-  {
-    icon: PlaneLanding,
-    title: "Antar-Jemput Bandara",
-    description:
-      "Penjemputan tepat waktu di terminal kedatangan, lengkap dengan driver profesional dan bantuan bagasi.",
-    points: ["Sekali jalan atau pulang-pergi", "Pemantauan jadwal penerbangan", "Titik jemput di 5 lokasi"],
-    href: "/sewa-mobil?layanan=antar-jemput",
-  },
+const inclusions = [
+  "Durasi 1–30 hari",
+  "Lepas kunci atau dengan driver",
+  "Unit diantar ke alamat Anda",
+  "Tarif khusus sewa mingguan",
 ];
 
 export function Services() {
@@ -28,47 +17,58 @@ export function Services() {
       <Container>
         <SectionHeading
           eyebrow="Layanan"
-          title="Dua cara memakai armada kami"
-          description="Pilih layanan yang paling sesuai dengan rencana perjalanan Anda. Keduanya memakai alur pemesanan yang sama."
+          title="Cara kami melayani perjalanan Anda"
+          description={`Kami fokus pada satu hal dan mengerjakannya dengan benar: rental harian mobil listrik untuk wilayah ${serviceAreaLabel}, dengan unit terawat dan proses pemesanan yang singkat.`}
         />
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-2 lg:gap-6">
-          {services.map(({ icon: Icon, ...service }) => (
-            <Link
-              key={service.title}
-              href={service.href}
-              className="group flex flex-col rounded-[var(--radius-card)] border border-ink-200 bg-white p-6 shadow-soft transition-[border-color,box-shadow,transform] duration-200 ease-[var(--ease-out-soft)] hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift sm:p-8"
-            >
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-600 group-hover:text-white">
-                <Icon className="size-6" aria-hidden="true" />
+        {/*
+         * A single service reads better as one wide panel than as a lone card
+         * stranded in a multi-column grid: the split gives the copy room to
+         * breathe on desktop and stacks cleanly on a phone.
+         */}
+        <div className="mt-10 overflow-hidden rounded-[var(--radius-card)] border border-ink-200 bg-white shadow-soft">
+          <div className="grid lg:grid-cols-5">
+            <div className="p-6 sm:p-8 lg:col-span-3 lg:p-10">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
+                <CalendarRange className="size-6" aria-hidden="true" />
               </span>
 
-              <h3 className="mt-5 text-lg font-bold text-ink-900">{service.title}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-600">
-                {service.description}
+              <h3 className="mt-5 text-lg font-bold text-ink-900">Rental Harian</h3>
+              <p className="mt-2.5 max-w-xl text-[15px] leading-relaxed text-ink-600">
+                Sewa unit per hari untuk kebutuhan pribadi maupun operasional
+                perusahaan. Cukup tentukan tanggal mulai dan lama sewa — titik
+                serah terima unit kami sepakati bersama lewat WhatsApp.
               </p>
 
-              <ul className="mt-5 space-y-2 text-sm text-ink-600">
-                {service.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2.5">
-                    <span
+              <Link
+                href="/sewa-mobil"
+                className="group mt-7 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-800"
+              >
+                Pesan layanan ini
+                <ArrowRight
+                  className="size-4 transition-transform duration-200 ease-[var(--ease-out-soft)] group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
+
+            <div className="border-t border-ink-200 bg-ink-50 p-6 sm:p-8 lg:col-span-2 lg:border-l lg:border-t-0 lg:p-10">
+              <h4 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-500">
+                Yang Anda dapatkan
+              </h4>
+              <ul className="mt-5 space-y-3.5 text-[15px] leading-relaxed text-ink-700">
+                {inclusions.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-brand-600"
                       aria-hidden="true"
-                      className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-500"
                     />
-                    {point}
+                    {item}
                   </li>
                 ))}
               </ul>
-
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-700">
-                Pesan layanan ini
-                <ArrowRight
-                  className="size-4 transition-transform duration-200 group-hover:translate-x-1"
-                  aria-hidden="true"
-                />
-              </span>
-            </Link>
-          ))}
+            </div>
+          </div>
         </div>
       </Container>
     </Section>

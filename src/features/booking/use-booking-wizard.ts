@@ -2,10 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import { getLocationById } from "@/data/locations";
 import { getVehicleById } from "@/data/vehicles";
 
-import { getVehiclesForLocation } from "./availability";
+import { getAvailableVehicles } from "./availability";
 import { defaultBookingDetails, WIZARD_STEPS } from "./constants";
 import type { BookingDetails, WizardStepId } from "./types";
 
@@ -16,23 +15,12 @@ import type { BookingDetails, WizardStepId } from "./types";
  * receives already-valid values. Keeping navigation here means each step
  * component stays a presentational unit that reports upward.
  */
-export function useBookingWizard(initialDetails?: Partial<BookingDetails>) {
+export function useBookingWizard() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [details, setDetails] = useState<BookingDetails>({
-    ...defaultBookingDetails,
-    ...initialDetails,
-  });
+  const [details, setDetails] = useState<BookingDetails>(defaultBookingDetails);
   const [vehicleId, setVehicleId] = useState<string>("");
 
-  const availableVehicles = useMemo(
-    () => getVehiclesForLocation(details.locationId),
-    [details.locationId],
-  );
-
-  const location = useMemo(
-    () => getLocationById(details.locationId),
-    [details.locationId],
-  );
+  const availableVehicles = useMemo(() => getAvailableVehicles(), []);
 
   const vehicle = useMemo(() => getVehicleById(vehicleId), [vehicleId]);
 
@@ -46,14 +34,9 @@ export function useBookingWizard(initialDetails?: Partial<BookingDetails>) {
   const submitDetails = useCallback(
     (values: BookingDetails) => {
       setDetails(values);
-      // Changing the location can make the previously chosen unit unavailable.
-      const stillAvailable = getVehiclesForLocation(values.locationId).some(
-        (item) => item.id === vehicleId,
-      );
-      if (!stillAvailable) setVehicleId("");
       goToStep(1);
     },
-    [goToStep, vehicleId],
+    [goToStep],
   );
 
   const selectVehicle = useCallback(
@@ -69,10 +52,10 @@ export function useBookingWizard(initialDetails?: Partial<BookingDetails>) {
   }, [goToStep, stepIndex]);
 
   const reset = useCallback(() => {
-    setDetails({ ...defaultBookingDetails, ...initialDetails });
+    setDetails(defaultBookingDetails);
     setVehicleId("");
     goToStep(0);
-  }, [goToStep, initialDetails]);
+  }, [goToStep]);
 
   const currentStep: WizardStepId = WIZARD_STEPS[stepIndex].id;
 
@@ -80,7 +63,6 @@ export function useBookingWizard(initialDetails?: Partial<BookingDetails>) {
     stepIndex,
     currentStep,
     details,
-    location,
     vehicle,
     vehicleId,
     availableVehicles,

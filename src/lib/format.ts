@@ -44,22 +44,10 @@ export function formatDateShortID(isoDate: string): string {
 }
 
 /**
- * `formatTimeID("09:30", "WITA")` -> `"09.30 WITA"`.
- *
- * The zone label is required from the caller: Indonesia spans three zones, and
- * a pickup time is always meant in the local time of the service point.
- */
-export function formatTimeID(time: string, timeZoneLabel: string): string {
-  if (!time) return "";
-  return `${time.replace(":", ".")} ${timeZoneLabel}`;
-}
-
-/**
  * Today's date in `YYYY-MM-DD`, evaluated in Asia/Jakarta (WIB).
  *
- * WIB is the westernmost Indonesian zone, so its "today" is never *ahead* of a
- * user in WITA or WIT. Using it as the floor for the date pickers means a user
- * in Bali or Papua is never blocked from selecting their own current day.
+ * Operations run in Jabodetabek, so WIB is the zone every rental date is
+ * meant in — regardless of where the customer happens to be booking from.
  */
 export function todayISO(): string {
   const parts = new Intl.DateTimeFormat("en-CA", {

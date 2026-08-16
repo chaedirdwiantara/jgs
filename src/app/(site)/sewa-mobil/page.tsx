@@ -1,9 +1,9 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import { BatteryCharging, MessageCircle, ShieldCheck } from "lucide-react";
+import { BatteryCharging, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 
 import { BookingWizard } from "@/components/booking/booking-wizard";
 import { Container } from "@/components/ui/section";
+import { serviceAreaLabel } from "@/data/service-areas";
 
 export const metadata: Metadata = {
   title: "Sewa Mobil Listrik",
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 const assurances = [
   { icon: MessageCircle, label: "Tanpa akun, cukup WhatsApp" },
+  { icon: MapPin, label: `Area layanan ${serviceAreaLabel}` },
   { icon: BatteryCharging, label: "Unit diserahkan baterai penuh" },
   { icon: ShieldCheck, label: "Harga dikonfirmasi sebelum bayar" },
 ];
@@ -30,8 +31,8 @@ export default function SewaMobilPage() {
             Sewa mobil listrik dalam 3 langkah
           </h1>
           <p className="mt-3 max-w-2xl text-pretty text-[15px] leading-relaxed text-ink-600 sm:text-base">
-            Isi detail kebutuhan Anda, pilih armada yang tersedia di lokasi tersebut,
-            lalu kirim ringkasan pesanan ke admin kami melalui WhatsApp.
+            Isi detail kebutuhan Anda, pilih armada yang tersedia, lalu kirim
+            ringkasan pesanan ke admin kami melalui WhatsApp.
           </p>
 
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2.5">
@@ -46,14 +47,7 @@ export default function SewaMobilPage() {
       </section>
 
       <Container className="py-10 sm:py-14">
-        {/*
-          `BookingWizard` reads `?layanan=` via `useSearchParams`, which needs a
-          Suspense boundary so the rest of this page can still be prerendered to
-          static HTML at build time.
-        */}
-        <Suspense fallback={<div className="min-h-[32rem]" aria-hidden="true" />}>
-          <BookingWizard />
-        </Suspense>
+        <BookingWizard />
       </Container>
     </>
   );

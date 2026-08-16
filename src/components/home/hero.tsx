@@ -3,12 +3,24 @@ import { ArrowRight, Leaf, Star } from "lucide-react";
 import { HeroCarousel } from "@/components/home/hero-carousel";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
+import { serviceAreaLabel } from "@/data/service-areas";
 import { getLowestDailyRate, getVehicles } from "@/data/vehicles";
+import {
+  MAX_DURATION_DAYS,
+  MIN_DURATION_DAYS,
+} from "@/features/booking/constants";
 import { formatIDR } from "@/lib/format";
 
+/*
+ * Derived from the booking rules rather than hard-coded, so a stat can never
+ * drift away from what the wizard actually offers.
+ */
 const stats = [
   { value: "100%", label: "Armada listrik" },
-  { value: "5", label: "Titik layanan" },
+  {
+    value: `${MIN_DURATION_DAYS}–${MAX_DURATION_DAYS}`,
+    label: "Hari masa sewa",
+  },
   { value: "24/7", label: "Dukungan pelanggan" },
 ];
 
@@ -44,8 +56,9 @@ export function Hero() {
             </h1>
 
             <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-ink-300 sm:text-lg">
-              Rental harian dan antar-jemput bandara dengan armada 100% kendaraan
-              listrik. Pilih unit, kirim pesanan lewat WhatsApp, kami urus sisanya.
+              Rental harian dengan armada 100% kendaraan listrik untuk wilayah{" "}
+              {serviceAreaLabel}. Pilih unit, kirim pesanan lewat WhatsApp, kami
+              urus sisanya.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">

@@ -25,31 +25,28 @@ async function check(name, fn) {
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "id-ID" });
 const page = await ctx.newPage();
 
-/* -- 1. Round trip doubles the transfer price and reaches WhatsApp --------- */
-await check("antar-jemput pulang-pergi doubles the fare", async () => {
-  await page.goto(`${BASE}/sewa-mobil?layanan=antar-jemput`, { waitUntil: "networkidle" });
+/* -- 1. The weekly discount applies and the order reaches WhatsApp --------- */
+await check("7-day rental applies the weekly discount", async () => {
+  await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
   await page.fill("#fullName", "Siti Rahayu");
   await page.fill("#whatsapp", "+6281199887766");
-  await page.selectOption("#locationId", "ngurah-rai");
-  await page.fill("#pickupDate", future);
-  await page.fill("#pickupTime", "09:30");
-  await page.fill("#destination", "Hotel Mulia, Nusa Dua");
-  await page.locator('label[for="tripType-pulang-pergi"]').click();
-  assert.equal(await page.locator("#tripType-pulang-pergi").isChecked(), true, "radio not checked");
+  await page.fill("#startDate", future);
+  await page.selectOption("#durationDays", "7");
 
   await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
-  await page.getByRole("button", { name: /^Pilih Denza D9$/i }).click();
+  await page.getByRole("button", { name: /^Pilih BYD ATTO 1$/i }).click();
   await page.waitForSelector("text=Total estimasi");
 
+  // 450.000 × 7 = 3.150.000, less the 10% weekly tier = 2.835.000.
   const total = await page.locator("text=Total estimasi").first().locator("..").innerText();
-  assert.match(total, /1\.900\.000/, `expected 1.900.000, got: ${total}`);
+  assert.match(total, /2\.835\.000/, `expected 2.835.000, got: ${total}`);
 
   const href = await page.getByRole("link", { name: /Pesan via WhatsApp/i }).getAttribute("href");
   const text = decodeURIComponent(href.split("text=")[1]);
   assert.ok(href.startsWith("https://wa.me/62"), "wa.me link malformed");
-  assert.match(text, /Pulang-Pergi/);
-  assert.match(text, /Denza D9/);
-  assert.match(text, /Hotel Mulia, Nusa Dua/);
+  assert.match(text, /Rental Harian/);
+  assert.match(text, /BYD ATTO 1/);
+  assert.match(text, /Diskon sewa mingguan/);
 });
 
 /* -- 2. Validation rejects bad phone numbers and past dates ---------------- */
@@ -57,7 +54,6 @@ await check("rejects invalid phone and past date", async () => {
   await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
   await page.fill("#fullName", "Andi");
   await page.fill("#whatsapp", "12345");
-  await page.selectOption("#locationId", "halim");
   await page.fill("#startDate", past);
   await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
   await page.waitForTimeout(400);
@@ -73,25 +69,36 @@ await check("company name required for perusahaan", async () => {
   await page.locator('label[for="customerType-perusahaan"]').click();
   await page.fill("#fullName", "Andi Wijaya");
   await page.fill("#whatsapp", "081234567890");
-  await page.selectOption("#locationId", "halim");
   await page.fill("#startDate", future);
   await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
   await page.waitForSelector("text=/nama perusahaan wajib diisi/i");
 });
 
-/* -- 4. Changing location clears an unavailable vehicle -------------------- */
-await check("location without a unit shows the empty state", async () => {
-  await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
-  await page.fill("#fullName", "Rina");
-  await page.fill("#whatsapp", "081234567890");
-  await page.selectOption("#locationId", "juanda"); // no 7-seater here
-  await page.fill("#startDate", future);
+/* -- 4. Switching back to perorangan must not strand the form -------------- */
+await check("company name stops blocking after switching to perorangan", async () => {
+  // The field unmounts but react-hook-form keeps its value, so its rule has to
+  // stay guarded by the customer type that owns it.
+  await page.locator('label[for="customerType-perorangan"]').click();
   await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
-  await page.getByRole("button", { name: /^7 kursi$/ }).click();
-  await page.waitForSelector("text=/tidak ada unit yang cocok/i");
+  await page.waitForSelector("text=/armada tersedia/i", { timeout: 5000 });
 });
 
-/* -- 5. Mobile: sticky CTA present, floating FAB suppressed ---------------- */
+/* -- 5. The retired airport flow leaves no inputs behind ------------------- */
+await check("no service-type, location, or address inputs remain", async () => {
+  await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
+  for (const selector of [
+    "#locationId",
+    "#deliveryAddress",
+    "#destination",
+    "#pickupDate",
+    "#pickupTime",
+    "#serviceType-antar-jemput",
+  ]) {
+    assert.equal(await page.locator(selector).count(), 0, `${selector} should be gone`);
+  }
+});
+
+/* -- 6. Mobile: sticky CTA present, floating FAB suppressed ---------------- */
 await check("mobile sticky CTA without FAB collision", async () => {
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -116,7 +123,7 @@ await check("mobile sticky CTA without FAB collision", async () => {
   await mobile.close();
 });
 
-/* -- 6. Regression: the mobile action bar stays pinned to the viewport ----- */
+/* -- 7. Regression: the mobile action bar stays pinned to the viewport ----- */
 await check("mobile action bar is pinned to the viewport bottom", async () => {
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -128,10 +135,9 @@ await check("mobile action bar is pinned to the viewport bottom", async () => {
   await m.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
   await m.fill("#fullName", "Budi Santoso");
   await m.fill("#whatsapp", "081234567890");
-  await m.selectOption("#locationId", "soetta");
   await m.fill("#startDate", future);
   await m.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
-  await m.getByRole("button", { name: /^Pilih BYD Seal$/i }).click();
+  await m.getByRole("button", { name: /^Pilih BYD ATTO 1$/i }).click();
   await m.waitForSelector("text=Total estimasi");
   await m.waitForTimeout(600);
   await m.evaluate(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }));
@@ -147,48 +153,7 @@ await check("mobile action bar is pinned to the viewport bottom", async () => {
   await mobile.close();
 });
 
-/* -- 7. Switching service type must not strand the form ------------------- */
-await check("switching service type clears the abandoned branch", async () => {
-  await page.goto(`${BASE}/sewa-mobil`, { waitUntil: "networkidle" });
-  // Overlong value in the rental-only field, then switch away from it.
-  await page.fill("#deliveryAddress", "x".repeat(250));
-  await page.locator('label[for="serviceType-antar-jemput"]').click();
-
-  await page.fill("#fullName", "Dewi Lestari");
-  await page.fill("#whatsapp", "081234567890");
-  await page.selectOption("#locationId", "ngurah-rai");
-  await page.fill("#pickupDate", future);
-  await page.fill("#pickupTime", "09:00");
-  await page.fill("#destination", "Hotel Mulia, Nusa Dua");
-  await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
-
-  // Must reach step 2 rather than silently failing on a hidden field's error.
-  await page.waitForSelector("text=/armada tersedia di/i", { timeout: 5000 });
-});
-
-/* -- 8. Pickup time carries the location's own time-zone label ------------ */
-await check("Bali pickup time is labelled WITA, Jakarta WIB", async () => {
-  await page.getByRole("button", { name: /^Pilih BYD Seal$/i }).click();
-  await page.waitForSelector("text=Total estimasi");
-  const body = await page.locator("dl").first().innerText();
-  assert.match(body, /09\.00 WITA/, `expected WITA, got: ${body}`);
-
-  const href = await page.getByRole("link", { name: /Pesan via WhatsApp/i }).getAttribute("href");
-  assert.match(decodeURIComponent(href.split("text=")[1]), /09\.00 WITA/);
-
-  await page.goto(`${BASE}/sewa-mobil?layanan=antar-jemput`, { waitUntil: "networkidle" });
-  await page.fill("#fullName", "Dewi Lestari");
-  await page.fill("#whatsapp", "081234567890");
-  await page.selectOption("#locationId", "halim");
-  await page.fill("#pickupDate", future);
-  await page.fill("#pickupTime", "09:00");
-  await page.fill("#destination", "Kota Kasablanka, Jakarta Selatan");
-  await page.getByRole("button", { name: /Lanjut Pilih Armada/i }).click();
-  await page.waitForSelector("text=/armada tersedia di/i");
-  assert.match(await page.locator("body").innerText(), /09\.00 WIB/);
-});
-
-/* -- 9. Growing past the lg breakpoint releases the drawer's scroll lock --- */
+/* -- 8. Growing past the lg breakpoint releases the drawer's scroll lock --- */
 await check("drawer releases body scroll lock on resize to desktop", async () => {
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -211,7 +176,7 @@ await check("drawer releases body scroll lock on resize to desktop", async () =>
   await mobile.close();
 });
 
-/* -- 10. Drawer exposes dialog semantics and traps focus ------------------ */
+/* -- 9. Drawer exposes dialog semantics and traps focus -------------------- */
 await check("drawer is a modal dialog with contained focus", async () => {
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },

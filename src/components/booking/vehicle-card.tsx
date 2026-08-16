@@ -6,14 +6,11 @@ import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
-import { displayRate } from "@/features/booking/pricing";
-import type { ServiceType } from "@/features/booking/types";
 import { formatIDR } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Props = {
   vehicle: Vehicle;
-  serviceType: ServiceType;
   selected?: boolean;
   onSelect?: (id: string) => void;
   /** Read-only variant used on the marketing pages. */
@@ -22,13 +19,10 @@ type Props = {
 
 export function VehicleCard({
   vehicle,
-  serviceType,
   selected = false,
   onSelect,
   showAction = true,
 }: Props) {
-  const rate = displayRate(vehicle, serviceType);
-
   return (
     <article
       className={cn(
@@ -79,8 +73,8 @@ export function VehicleCard({
           <div>
             <p className="text-xs text-ink-500">Mulai dari</p>
             <p className="text-lg font-extrabold tracking-tight text-ink-900">
-              {formatIDR(rate.amount)}
-              <span className="ml-1 text-sm font-medium text-ink-500">/ {rate.unit}</span>
+              {formatIDR(vehicle.dailyRate)}
+              <span className="ml-1 text-sm font-medium text-ink-500">/ hari</span>
             </p>
           </div>
 

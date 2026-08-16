@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { ArrowRight, Building2, Leaf, Target } from "lucide-react";
+import { ArrowRight, Building2, Leaf, MapPin, Target } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/button";
 import { Container, Section, SectionHeading } from "@/components/ui/section";
-import { getLocations } from "@/data/locations";
+import { serviceAreaLabel, serviceAreas } from "@/data/service-areas";
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Tentang Kami",
-  description: `Profil ${siteConfig.legalName}, penyedia layanan sewa mobil listrik untuk rental harian dan antar-jemput bandara di Indonesia.`,
+  description: `Profil ${siteConfig.legalName}, penyedia layanan sewa mobil listrik harian untuk wilayah ${serviceAreaLabel}.`,
   alternates: { canonical: "/tentang" },
 };
 
@@ -34,8 +34,6 @@ const pillars = [
 ];
 
 export default function TentangPage() {
-  const locations = getLocations();
-
   return (
     <>
       <section className="border-b border-ink-100 bg-linear-to-b from-brand-50 to-white">
@@ -83,21 +81,18 @@ export default function TentangPage() {
         <Container>
           <SectionHeading
             eyebrow="Jangkauan"
-            title="Titik layanan kami"
-            description="Armada tersedia di bandara utama dan pool kota. Ketersediaan unit per lokasi dapat dilihat saat memesan."
+            title={`Area layanan ${serviceAreaLabel}`}
+            description="Kami beroperasi di wilayah Jabodetabek saja, sehingga unit dapat diantar dan dijemput tepat waktu. Titik serah terima disepakati bersama saat konfirmasi pesanan."
           />
 
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {locations.map((location) => (
+          <ul className="mt-10 flex flex-wrap gap-3">
+            {serviceAreas.map((area) => (
               <li
-                key={location.id}
-                className="rounded-[var(--radius-card)] border border-ink-200 bg-white p-5 shadow-soft"
+                key={area}
+                className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white px-4 py-2 text-sm font-medium text-ink-800 shadow-soft"
               >
-                <h3 className="text-base font-semibold text-ink-900">{location.name}</h3>
-                <p className="mt-1 text-sm text-ink-500">{location.area}</p>
-                <p className="mt-3 text-sm text-ink-600">
-                  {location.vehicleIds.length} unit tersedia
-                </p>
+                <MapPin className="size-4 shrink-0 text-brand-600" aria-hidden="true" />
+                {area}
               </li>
             ))}
           </ul>

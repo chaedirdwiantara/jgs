@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "sewa mobil listrik",
     "rental mobil listrik",
     "rental EV",
-    "antar jemput bandara",
+    "sewa mobil listrik Jabodetabek",
     "mobil listrik Jakarta",
     siteConfig.legalName,
   ],

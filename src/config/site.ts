@@ -13,7 +13,7 @@ export const siteConfig = {
   productName: "Jagayanigiri EV Rental",
   tagline: "Sewa mobil listrik, tanpa ribet.",
   description:
-    "Layanan sewa mobil 100% listrik dari PT Jagayanigiri Sentosa. Rental harian dan antar-jemput bandara dengan armada EV terawat, driver profesional, dan harga transparan.",
+    "Layanan sewa mobil 100% listrik dari PT Jagayanigiri Sentosa. Rental harian di wilayah Jabodetabek dengan armada EV terawat, driver profesional, dan harga transparan.",
 
   /** Domain produksi. Dipakai untuk metadata & sitemap. */
   url: "https://jgs-ev.com",
@@ -57,8 +57,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
   {
     title: "Layanan",
     items: [
-      { label: "Rental Harian", href: "/sewa-mobil?layanan=rental-harian" },
-      { label: "Antar-Jemput Bandara", href: "/sewa-mobil?layanan=antar-jemput" },
+      { label: "Rental Harian", href: "/sewa-mobil" },
       { label: "Sewa Korporat", href: "/kontak" },
     ],
   },

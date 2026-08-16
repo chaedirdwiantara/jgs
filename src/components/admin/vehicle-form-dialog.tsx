@@ -55,7 +55,6 @@ export function VehicleFormDialog({
   // `useWatch` rather than `watch` — the latter returns a function the React
   // compiler cannot memoize safely, which the project's lint rejects.
   const dailyRate = useWatch({ control, name: "dailyRate" });
-  const transferRate = useWatch({ control, name: "transferRate" });
 
   /**
    * Derives the slug from the model name while creating, but only while the
@@ -230,26 +229,6 @@ export function VehicleFormDialog({
                 invalid={Boolean(errors.dailyRate)}
                 aria-describedby={errors.dailyRate ? "dailyRate-error" : "dailyRate-hint"}
                 {...register("dailyRate", { valueAsNumber: true })}
-              />
-            </Field>
-
-            <Field
-              htmlFor="transferRate"
-              label="Tarif antar-jemput (Rp)"
-              error={errors.transferRate?.message}
-              hint={transferRate > 0 ? formatIDR(transferRate) : "Tarif sekali jalan."}
-            >
-              <Input
-                id="transferRate"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                step={25_000}
-                invalid={Boolean(errors.transferRate)}
-                aria-describedby={
-                  errors.transferRate ? "transferRate-error" : "transferRate-hint"
-                }
-                {...register("transferRate", { valueAsNumber: true })}
               />
             </Field>
           </div>

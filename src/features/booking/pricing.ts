@@ -10,21 +10,10 @@ import { formatIDR } from "@/lib/format";
  * the final amount is confirmed by admin over WhatsApp.
  */
 export function estimatePrice(
-  details: Pick<BookingDetails, "serviceType" | "durationDays" | "tripType">,
+  details: Pick<BookingDetails, "durationDays">,
   vehicle: Vehicle,
 ): PriceEstimate {
-  const lines: PriceLine[] =
-    details.serviceType === "rental-harian"
-      ? buildRentalLines(details.durationDays, vehicle)
-      : buildTransferLines(details.tripType, vehicle);
-
-  const total = lines.reduce((sum, line) => sum + line.amount, 0);
-
-  return { lines, total: Math.max(total, 0) };
-}
-
-function buildRentalLines(durationDays: number, vehicle: Vehicle): PriceLine[] {
-  const days = Math.max(1, Math.trunc(durationDays) || 1);
+  const days = Math.max(1, Math.trunc(details.durationDays) || 1);
   const subtotal = vehicle.dailyRate * days;
 
   const lines: PriceLine[] = [
@@ -43,33 +32,7 @@ function buildRentalLines(durationDays: number, vehicle: Vehicle): PriceLine[] {
     });
   }
 
-  return lines;
-}
+  const total = lines.reduce((sum, line) => sum + line.amount, 0);
 
-function buildTransferLines(
-  tripType: BookingDetails["tripType"],
-  vehicle: Vehicle,
-): PriceLine[] {
-  const trips = tripType === "pulang-pergi" ? 2 : 1;
-
-  return [
-    {
-      label: `Antar-jemput ${vehicle.name}`,
-      detail:
-        trips === 2
-          ? `${formatIDR(vehicle.transferRate)} × 2 perjalanan`
-          : "Sekali jalan",
-      amount: vehicle.transferRate * trips,
-    },
-  ];
-}
-
-/** Headline price used on vehicle cards, matching the selected service. */
-export function displayRate(
-  vehicle: Vehicle,
-  serviceType: BookingDetails["serviceType"],
-): { amount: number; unit: string } {
-  return serviceType === "rental-harian"
-    ? { amount: vehicle.dailyRate, unit: "hari" }
-    : { amount: vehicle.transferRate, unit: "perjalanan" };
+  return { lines, total: Math.max(total, 0) };
 }
