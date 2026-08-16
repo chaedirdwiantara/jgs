@@ -4,8 +4,11 @@ import { addDaysISO, todayISO, toWhatsAppNumber } from "@/lib/format";
 
 import {
   MAX_DURATION_DAYS,
+  MAX_DURATION_MONTHS,
   MAX_LEAD_DAYS,
   MIN_DURATION_DAYS,
+  MIN_DURATION_MONTHS,
+  MIN_LEAD_DAYS,
 } from "./constants";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -24,12 +27,19 @@ const whatsappSchema = z
   }, "Masukkan nomor WhatsApp Indonesia yang valid, contoh: 08123456789");
 
 function dateWithinBookingWindow(label: string) {
+  // Booking closes the day before pickup (H-1), so the earliest valid start is
+  // tomorrow — not today.
+  const earliest = addDaysISO(todayISO(), MIN_LEAD_DAYS);
+
   return z
     .string()
     .trim()
     .min(1, `${label} wajib diisi`)
     .regex(ISO_DATE, `${label} tidak valid`)
-    .refine((value) => value >= todayISO(), `${label} tidak boleh di masa lalu`)
+    .refine(
+      (value) => value >= earliest,
+      `Pemesanan paling lambat H-1, jadi ${label.toLowerCase()} paling cepat besok`,
+    )
     .refine(
       (value) => value <= addDaysISO(todayISO(), MAX_LEAD_DAYS),
       `${label} maksimal ${MAX_LEAD_DAYS} hari dari sekarang`,
@@ -63,24 +73,43 @@ export const bookingDetailsSchema = z
     whatsapp: whatsappSchema,
 
     startDate: dateWithinBookingWindow("Tanggal mulai"),
-    durationDays: z
+
+    rentalPackage: z.enum(["harian", "bulanan"], { error: "Pilih paket sewa" }),
+
+    /*
+     * Bounds depend on the package, so they are enforced in `superRefine`
+     * below rather than here — a `.min()`/`.max()` declared at this level
+     * cannot see a sibling field.
+     */
+    duration: z
       .number({ error: "Durasi sewa wajib diisi" })
-      .int("Durasi sewa harus berupa angka bulat")
-      .min(MIN_DURATION_DAYS, `Durasi sewa minimal ${MIN_DURATION_DAYS} hari`)
-      .max(MAX_DURATION_DAYS, `Durasi sewa maksimal ${MAX_DURATION_DAYS} hari`),
+      .int("Durasi sewa harus berupa angka bulat"),
 
     notes: z.string().trim().max(500, "Catatan maksimal 500 karakter"),
   })
   .superRefine((values, ctx) => {
-    if (values.customerType !== "perusahaan") return;
+    if (values.customerType === "perusahaan") {
+      const fail = (message: string) =>
+        ctx.addIssue({ code: "custom", path: ["companyName"], message });
 
-    const fail = (message: string) =>
-      ctx.addIssue({ code: "custom", path: ["companyName"], message });
+      if (values.companyName.length < 3) {
+        fail("Nama perusahaan wajib diisi");
+      } else if (values.companyName.length > 120) {
+        fail("Nama perusahaan maksimal 120 karakter");
+      }
+    }
 
-    if (values.companyName.length < 3) {
-      fail("Nama perusahaan wajib diisi");
-    } else if (values.companyName.length > 120) {
-      fail("Nama perusahaan maksimal 120 karakter");
+    const [min, max, unit] =
+      values.rentalPackage === "bulanan"
+        ? [MIN_DURATION_MONTHS, MAX_DURATION_MONTHS, "bulan"]
+        : [MIN_DURATION_DAYS, MAX_DURATION_DAYS, "hari"];
+
+    if (values.duration < min || values.duration > max) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["duration"],
+        message: `Durasi sewa ${min}–${max} ${unit}`,
+      });
     }
   });
 

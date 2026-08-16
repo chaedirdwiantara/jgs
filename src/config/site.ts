@@ -20,16 +20,18 @@ export const siteConfig = {
 
   contact: {
     /** Nomor WhatsApp admin. Format bebas — dinormalisasi otomatis ke 62…. */
-    whatsapp: "0813-8028-7288",
+    whatsapp: "0811803090",
     /** TODO: ganti dengan email resmi. */
     email: "halo@jagayanigiri.co.id",
     /**
      * TODO: ganti bila ada nomor telepon kantor terpisah. Sementara diarahkan
      * ke nomor admin yang sama agar tidak ada nomor palsu tampil di header.
      */
-    phone: "0813-8028-7288",
-    /** TODO: ganti dengan alamat kantor. */
-    address: "Jakarta Selatan, DKI Jakarta, Indonesia",
+    phone: "0811803090",
+    /** Garasi JGS — titik serah terima unit bila diambil sendiri. */
+    address: "Jl. Catur No. 10, Menteng Dalam, Jakarta Selatan",
+    /** Patokan yang dipakai di materi promosi. */
+    addressLandmark: "Samping Menara Bidakara",
     operationalHours: "Setiap hari, 06.00 – 22.00 WIB",
   },
 
@@ -49,6 +51,7 @@ export const mainNav: NavItem[] = [
   { label: "Beranda", href: "/" },
   { label: "Armada", href: "/armada" },
   { label: "Sewa Mobil", href: "/sewa-mobil" },
+  { label: "Cara Sewa", href: "/cara-sewa" },
   { label: "Tentang", href: "/tentang" },
   { label: "Kontak", href: "/kontak" },
 ];
@@ -58,6 +61,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Layanan",
     items: [
       { label: "Rental Harian", href: "/sewa-mobil" },
+      { label: "Sewa Bulanan", href: "/sewa-mobil" },
       { label: "Sewa Korporat", href: "/kontak" },
     ],
   },
@@ -66,6 +70,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Tentang Kami", href: "/tentang" },
       { label: "Armada", href: "/armada" },
+      { label: "Cara Sewa", href: "/cara-sewa" },
       { label: "Kontak", href: "/kontak" },
     ],
   },

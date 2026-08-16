@@ -11,6 +11,8 @@ export const emptyVehicleForm: VehicleFormValues = {
   luggage: 2,
   rangeKm: 400,
   dailyRate: 0,
+  monthlyRate: 0,
+  downtimeRate: 0,
   highlights: "",
   photoOutdoorWide: "",
   photoOutdoorTall: "",
@@ -28,6 +30,8 @@ export function toVehicle(values: VehicleFormValues): Vehicle {
     luggage: values.luggage,
     rangeKm: values.rangeKm,
     dailyRate: values.dailyRate,
+    monthlyRate: values.monthlyRate,
+    downtimeRate: values.downtimeRate,
     highlights: splitHighlights(values.highlights),
     photos: {
       outdoor: {
@@ -52,6 +56,8 @@ export function toFormValues(vehicle: Vehicle): VehicleFormValues {
     luggage: vehicle.luggage,
     rangeKm: vehicle.rangeKm,
     dailyRate: vehicle.dailyRate,
+    monthlyRate: vehicle.monthlyRate,
+    downtimeRate: vehicle.downtimeRate,
     highlights: vehicle.highlights.join("\n"),
     photoOutdoorWide: vehicle.photos.outdoor.wide,
     photoOutdoorTall: vehicle.photos.outdoor.tall,

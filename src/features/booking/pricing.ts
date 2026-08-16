@@ -8,28 +8,42 @@ import { formatIDR } from "@/lib/format";
  * Indicative price for a booking. Deliberately pure so it can be unit-tested
  * and reused server-side later. The result is always presented as an estimate:
  * the final amount is confirmed by admin over WhatsApp.
+ *
+ * The two packages are priced from separate columns of the published price
+ * list. A month is *not* thirty daily rates — the Denza is Rp 2.000.000/day but
+ * Rp 36.000.000/month — so the monthly package multiplies `monthlyRate` and
+ * skips the daily discount ladder, which would otherwise discount an already
+ * discounted rate.
+ *
+ * All figures exclude PPN, matching the published list.
  */
 export function estimatePrice(
-  details: Pick<BookingDetails, "durationDays">,
+  details: Pick<BookingDetails, "rentalPackage" | "duration">,
   vehicle: Vehicle,
 ): PriceEstimate {
-  const days = Math.max(1, Math.trunc(details.durationDays) || 1);
-  const subtotal = vehicle.dailyRate * days;
+  const units = Math.max(1, Math.trunc(details.duration) || 1);
+  const monthly = details.rentalPackage === "bulanan";
+
+  const rate = monthly ? vehicle.monthlyRate : vehicle.dailyRate;
+  const unitLabel = monthly ? "bulan" : "hari";
+  const subtotal = rate * units;
 
   const lines: PriceLine[] = [
     {
       label: `Sewa ${vehicle.name}`,
-      detail: `${formatIDR(vehicle.dailyRate)} × ${days} hari`,
+      detail: `${formatIDR(rate)} × ${units} ${unitLabel}`,
       amount: subtotal,
     },
   ];
 
-  const discount = DURATION_DISCOUNTS.find((tier) => days >= tier.minDays);
-  if (discount) {
-    lines.push({
-      label: discount.label,
-      amount: -Math.round(subtotal * discount.rate),
-    });
+  if (!monthly) {
+    const discount = DURATION_DISCOUNTS.find((tier) => units >= tier.minDays);
+    if (discount) {
+      lines.push({
+        label: discount.label,
+        amount: -Math.round(subtotal * discount.rate),
+      });
+    }
   }
 
   const total = lines.reduce((sum, line) => sum + line.amount, 0);

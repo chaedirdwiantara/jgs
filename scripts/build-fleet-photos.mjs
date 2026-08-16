@@ -39,11 +39,20 @@ const SHAPES = {
   tall: { width: 800, master: "868x1058" },
 };
 
-/** Master filename fragment → the vehicle id used in `src/data/vehicles.ts`. */
+/**
+ * Master filename prefix → the vehicle id used in `src/data/vehicles.ts`.
+ *
+ * Kept explicit rather than derived from the filenames: the masters are named
+ * after the model as photographed, which is not always the id we publish
+ * (`denza-*` → `denza-d9`).
+ */
 const vehicles = [
   { id: "byd-atto-1", match: "byd-atto-1" },
-  { id: "byd-m6", match: "byd-m6" },
   { id: "wuling-cloud", match: "wuling-cloud" },
+  { id: "byd-m6", match: "byd-m6" },
+  { id: "hyundai-ioniq-5", match: "hyundai-ioniq-5" },
+  { id: "byd-seal", match: "byd-seal" },
+  { id: "denza-d9", match: "denza-" },
 ];
 
 mkdirSync(OUT_DIR, { recursive: true });

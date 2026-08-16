@@ -55,6 +55,8 @@ export function VehicleFormDialog({
   // `useWatch` rather than `watch` — the latter returns a function the React
   // compiler cannot memoize safely, which the project's lint rejects.
   const dailyRate = useWatch({ control, name: "dailyRate" });
+  const monthlyRate = useWatch({ control, name: "monthlyRate" });
+  const downtimeRate = useWatch({ control, name: "downtimeRate" });
 
   /**
    * Derives the slug from the model name while creating, but only while the
@@ -231,7 +233,60 @@ export function VehicleFormDialog({
                 {...register("dailyRate", { valueAsNumber: true })}
               />
             </Field>
+
+            <Field
+              htmlFor="monthlyRate"
+              label="Tarif bulanan (Rp)"
+              error={errors.monthlyRate?.message}
+              hint={
+                monthlyRate > 0
+                  ? formatIDR(monthlyRate)
+                  : "Bukan 30 × tarif harian — ambil dari daftar harga."
+              }
+            >
+              <Input
+                id="monthlyRate"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                step={500_000}
+                invalid={Boolean(errors.monthlyRate)}
+                aria-describedby={
+                  errors.monthlyRate ? "monthlyRate-error" : "monthlyRate-hint"
+                }
+                {...register("monthlyRate", { valueAsNumber: true })}
+              />
+            </Field>
+
+            <Field
+              htmlFor="downtimeRate"
+              label="Biaya downtime (Rp/hari)"
+              error={errors.downtimeRate?.message}
+              className="sm:col-span-2"
+              hint={
+                downtimeRate > 0
+                  ? `${formatIDR(downtimeRate)} per hari selama unit di bengkel`
+                  : "Dikenakan per hari selama unit diperbaiki akibat insiden."
+              }
+            >
+              <Input
+                id="downtimeRate"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                step={50_000}
+                invalid={Boolean(errors.downtimeRate)}
+                aria-describedby={
+                  errors.downtimeRate ? "downtimeRate-error" : "downtimeRate-hint"
+                }
+                {...register("downtimeRate", { valueAsNumber: true })}
+              />
+            </Field>
           </div>
+
+          <p className="text-xs text-ink-500">
+            Semua tarif belum termasuk PPN, sesuai daftar harga yang dipublikasikan.
+          </p>
         </FormSection>
 
         <FormSection title="Tampilan">

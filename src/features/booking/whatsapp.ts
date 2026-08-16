@@ -3,6 +3,7 @@ import { serviceAreaLabel } from "@/data/service-areas";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
 import { formatDateID, formatIDR, toWhatsAppNumber } from "@/lib/format";
 
+import { formatDuration } from "./constants";
 import { estimatePrice } from "./pricing";
 import type { Booking } from "./types";
 
@@ -28,7 +29,7 @@ export function buildWhatsAppMessage({
     `Halo ${siteConfig.brandName}, saya ingin memesan mobil listrik.`,
     "",
     `*No. Referensi:* ${reference}`,
-    `*Layanan:* Rental Harian`,
+    `*Layanan:* ${booking.rentalPackage === "bulanan" ? "Rental Bulanan" : "Rental Harian"}`,
     "",
     "*Data Pemesan*",
     `• Tipe: ${booking.customerType === "perusahaan" ? "Perusahaan" : "Perorangan"}`,
@@ -44,7 +45,8 @@ export function buildWhatsAppMessage({
     "",
     "*Jadwal*",
     `• Tanggal mulai: ${formatDateID(booking.startDate)}`,
-    `• Durasi: ${booking.durationDays} hari`,
+    // The package is already stated in the *Layanan* line above.
+    `• Durasi: ${formatDuration(booking.rentalPackage, booking.duration)}`,
     "",
     "*Armada*",
     `• Unit: ${vehicle.name} (${tierLabels[vehicle.tier]})`,

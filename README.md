@@ -2,7 +2,8 @@
 
 Situs pemesanan sewa mobil listrik untuk **PT Jagayanigiri Sentosa**. Alur
 pemesanan mengikuti pola tiga langkah: **detail sewa → pilih armada →
-konfirmasi via WhatsApp**, tanpa registrasi akun dan tanpa pembayaran di muka.
+konfirmasi via WhatsApp**, tanpa registrasi akun. Verifikasi dokumen, DP, dan
+deposit diurus admin setelah pesanan masuk — lihat halaman Cara Sewa.
 
 ## Teknologi
 
@@ -36,6 +37,7 @@ src/
   app/                      # route App Router + metadata, sitemap, robots
     (site)/                 # halaman publik — memakai header/footer marketing
       sewa-mobil/           # halaman alur pemesanan
+      cara-sewa/            # langkah sewa, DP/deposit, ketentuan insiden
     admin/                  # konsol admin — sengaja tanpa chrome marketing
   components/
     admin/                  # tabel, form, dan dialog konsol admin
@@ -74,8 +76,9 @@ Semua nilai sementara ditandai `TODO` / "PLACEHOLDER" pada berkas berikut:
 1. **`src/config/site.ts`** — nama domain, nomor WhatsApp admin, telepon,
    email, alamat, jam operasional, tautan media sosial.
    Nomor WhatsApp dinormalisasi otomatis (`08…`, `+62…`, `62…` semuanya valid).
-2. **`src/data/vehicles.ts`** — daftar unit, tarif harian, kapasitas, dan
-   jarak tempuh. Angka saat ini adalah nilai indikatif.
+2. **`src/data/vehicles.ts`** — tarif harian, bulanan, dan biaya downtime sudah
+   memakai daftar harga asli (belum termasuk PPN). Kapasitas dan jarak tempuh
+   masih angka indikatif dari klaim pabrikan.
 3. **`src/data/service-areas.ts`** — wilayah operasional (Jabodetabek).
 4. **`src/features/booking/constants.ts`** — `DURATION_DISCOUNTS` (kebijakan
    diskon sewa panjang). Kosongkan array untuk menonaktifkan.
@@ -157,7 +160,7 @@ manual:
 
 ```bash
 npm run build:brand      # logo header/footer, icon.png, apple-icon.png, favicon.ico
-npm run build:fleet      # 12 foto armada (3 unit × 2 suasana × 2 bentuk)
+npm run build:fleet      # 24 foto armada (6 unit × 2 suasana × 2 bentuk)
 ```
 
 `build:brand` membaca `assets/brand/jgs-logo-source.png`, memangkas margin

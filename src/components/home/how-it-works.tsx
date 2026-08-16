@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ClipboardList, MessageCircle, CarFront } from "lucide-react";
 
 import { Container, Section, SectionHeading } from "@/components/ui/section";
@@ -19,7 +20,7 @@ const steps = [
     icon: MessageCircle,
     title: "Konfirmasi via WhatsApp",
     description:
-      "Ringkasan pesanan terkirim otomatis ke admin. Ketersediaan dan harga final dikonfirmasi langsung.",
+      "Ringkasan pesanan terkirim otomatis ke admin. Ketersediaan, harga final, DP, dan deposit dikonfirmasi langsung.",
   },
 ];
 
@@ -30,7 +31,11 @@ export function HowItWorks() {
         <SectionHeading
           eyebrow="Cara Kerja"
           title="Tiga langkah, selesai dalam hitungan menit"
-          description="Alur pemesanan dirancang sesingkat mungkin — tanpa registrasi dan tanpa pembayaran di muka."
+          /*
+           * Deliberately no longer claims "tanpa pembayaran di muka": booking a
+           * unit now requires a DP once the documents are verified.
+           */
+          description="Memesan lewat situs tidak perlu registrasi. Verifikasi dokumen, DP, dan deposit diurus admin setelah pesanan masuk."
           align="center"
         />
 
@@ -62,6 +67,17 @@ export function HowItWorks() {
             </li>
           ))}
         </ol>
+
+        <p className="mt-8 text-center text-sm text-ink-600">
+          Syarat dokumen, DP, deposit, dan ketentuan bila terjadi insiden ada di{" "}
+          <Link
+            href="/cara-sewa"
+            className="font-semibold text-brand-600 underline underline-offset-4 hover:text-brand-700"
+          >
+            halaman Cara Sewa
+          </Link>
+          .
+        </p>
       </Container>
     </Section>
   );

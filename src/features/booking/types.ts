@@ -2,6 +2,12 @@
 
 export type CustomerType = "perorangan" | "perusahaan";
 
+/**
+ * Daily and monthly are priced from different columns of the price list, not by
+ * multiplying one into the other — a month costs well under 30 daily rates.
+ */
+export type RentalPackage = "harian" | "bulanan";
+
 /** Everything captured in step 1 of the wizard. */
 export type BookingDetails = {
   customerType: CustomerType;
@@ -10,7 +16,16 @@ export type BookingDetails = {
   whatsapp: string;
 
   startDate: string; // YYYY-MM-DD
-  durationDays: number;
+
+  rentalPackage: RentalPackage;
+  /**
+   * Days when `rentalPackage` is "harian", months when "bulanan".
+   *
+   * One field rather than two, because only one is ever meaningful: a second
+   * field would sit stale in form state and travel into the submission, which
+   * is exactly the trap the removed antar-jemput branch used to spring.
+   */
+  duration: number;
 
   notes: string;
 };

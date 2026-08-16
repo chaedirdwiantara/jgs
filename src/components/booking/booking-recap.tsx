@@ -1,5 +1,6 @@
 import { CalendarDays, CalendarRange, PencilLine, User } from "lucide-react";
 
+import { formatDuration } from "@/features/booking/constants";
 import type { BookingDetails } from "@/features/booking/types";
 import { formatDateShortID } from "@/lib/format";
 
@@ -20,7 +21,7 @@ export function BookingRecap({ details, onEdit }: Props) {
       </RecapItem>
 
       <RecapItem icon={<CalendarRange className="size-4" />} label="Durasi">
-        {details.durationDays} hari
+        {formatDuration(details.rentalPackage, details.duration)}
       </RecapItem>
 
       <RecapItem icon={<User className="size-4" />} label="Pemesan">

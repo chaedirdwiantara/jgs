@@ -12,11 +12,14 @@ import { serviceAreaLabel } from "@/data/service-areas";
 import {
   CUSTOMER_TYPES,
   DURATION_OPTIONS,
+  formatDuration,
   MAX_LEAD_DAYS,
+  MIN_LEAD_DAYS,
+  RENTAL_PACKAGES,
 } from "@/features/booking/constants";
 import { normalizeBookingDetails } from "@/features/booking/normalize";
 import { bookingDetailsSchema } from "@/features/booking/schema";
-import type { BookingDetails } from "@/features/booking/types";
+import type { BookingDetails, RentalPackage } from "@/features/booking/types";
 import { addDaysISO, todayISO } from "@/lib/format";
 
 type Props = {
@@ -29,6 +32,7 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<BookingDetails>({
     resolver: zodResolver(bookingDetailsSchema),
@@ -38,9 +42,25 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
 
   // `useWatch` (rather than `watch`) so the subscription is compiler-safe.
   const customerType = useWatch({ control, name: "customerType" });
+  const rentalPackage = useWatch({ control, name: "rentalPackage" });
 
-  const minDate = todayISO();
-  const maxDate = addDaysISO(minDate, MAX_LEAD_DAYS);
+  /**
+   * The two packages have different duration ranges (1–30 days vs 1–12 months),
+   * so a value carried across the switch can land out of bounds — "30" would
+   * survive into the monthly package and fail validation with the select
+   * showing nothing selected.
+   */
+  const handleRentalPackageChange = (
+    next: RentalPackage,
+    apply: (value: RentalPackage) => void,
+  ) => {
+    apply(next);
+    setValue("duration", 1, { shouldValidate: false });
+  };
+
+  // Booking closes H-1, so the calendar opens tomorrow rather than today.
+  const minDate = addDaysISO(todayISO(), MIN_LEAD_DAYS);
+  const maxDate = addDaysISO(todayISO(), MAX_LEAD_DAYS);
 
   return (
     <form
@@ -121,11 +141,30 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
         title="Jadwal Sewa"
         description={`Tentukan tanggal mulai dan lama sewa. Titik serah terima unit di area ${serviceAreaLabel} kami sepakati bersama lewat WhatsApp.`}
       >
+        <Controller
+          control={control}
+          name="rentalPackage"
+          render={({ field }) => (
+            <RadioCards
+              name={field.name}
+              legend="Paket Sewa"
+              value={field.value}
+              onChange={(next) => handleRentalPackageChange(next, field.onChange)}
+              options={RENTAL_PACKAGES.map((item) => ({
+                value: item.value,
+                label: item.label,
+                description: item.description,
+              }))}
+            />
+          )}
+        />
+
         <div className="grid gap-5 sm:grid-cols-2">
           <Field
             htmlFor="startDate"
             label="Tanggal Mulai"
             error={errors.startDate?.message}
+            hint="Pemesanan paling lambat H-1."
           >
             <Input
               id="startDate"
@@ -133,27 +172,27 @@ export function StepDetails({ defaultValues, onSubmit }: Props) {
               min={minDate}
               max={maxDate}
               invalid={Boolean(errors.startDate)}
-              aria-describedby={errors.startDate ? "startDate-error" : undefined}
+              aria-describedby={errors.startDate ? "startDate-error" : "startDate-hint"}
               {...register("startDate")}
             />
           </Field>
 
           <Field
-            htmlFor="durationDays"
+            htmlFor="duration"
             label="Durasi Sewa"
-            error={errors.durationDays?.message}
+            error={errors.duration?.message}
           >
             <Select
-              id="durationDays"
-              invalid={Boolean(errors.durationDays)}
-              aria-describedby={errors.durationDays ? "durationDays-error" : undefined}
-              {...register("durationDays", {
+              id="duration"
+              invalid={Boolean(errors.duration)}
+              aria-describedby={errors.duration ? "duration-error" : undefined}
+              {...register("duration", {
                 setValueAs: (value) => (value === "" ? Number.NaN : Number(value)),
               })}
             >
-              {DURATION_OPTIONS.map((days) => (
-                <option key={days} value={days}>
-                  {days} hari
+              {DURATION_OPTIONS[rentalPackage].map((value) => (
+                <option key={value} value={value}>
+                  {formatDuration(rentalPackage, value)}
                 </option>
               ))}
             </Select>

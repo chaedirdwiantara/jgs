@@ -7,6 +7,7 @@ import { FleetPhoto } from "@/components/fleet/fleet-photo";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
+import { formatDuration } from "@/features/booking/constants";
 import { estimatePrice } from "@/features/booking/pricing";
 import type { BookingDetails } from "@/features/booking/types";
 import {
@@ -77,7 +78,13 @@ export function StepConfirm({ details, vehicle, onBack, onReset }: Props) {
             </div>
 
             <dl className="divide-y divide-ink-100">
-              <Row label="Layanan">Rental Harian</Row>
+              {/* Was hard-coded "Rental Harian", which contradicted the row below
+                  as soon as the monthly package existed. */}
+              <Row label="Layanan">
+                {details.rentalPackage === "bulanan"
+                  ? "Rental Bulanan"
+                  : "Rental Harian"}
+              </Row>
               <Row label="Tipe Pelanggan">
                 {details.customerType === "perusahaan" ? "Perusahaan" : "Perorangan"}
               </Row>
@@ -87,7 +94,8 @@ export function StepConfirm({ details, vehicle, onBack, onReset }: Props) {
               ) : null}
               <Row label="WhatsApp">{details.whatsapp}</Row>
               <Row label="Tanggal Mulai">{formatDateID(details.startDate)}</Row>
-              <Row label="Durasi">{details.durationDays} hari</Row>
+              <Row label="Paket">{details.rentalPackage === "bulanan" ? "Bulanan" : "Harian"}</Row>
+              <Row label="Durasi">{formatDuration(details.rentalPackage, details.duration)}</Row>
 
               {details.notes ? <Row label="Catatan">{details.notes}</Row> : null}
             </dl>

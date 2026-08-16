@@ -76,6 +76,14 @@ export function VehicleCard({
               {formatIDR(vehicle.dailyRate)}
               <span className="ml-1 text-sm font-medium text-ink-500">/ hari</span>
             </p>
+            {/* The monthly column is a different rate, not a multiple of the daily one. */}
+            <p className="mt-0.5 text-xs text-ink-500">
+              atau{" "}
+              <span className="font-semibold text-ink-700">
+                {formatIDR(vehicle.monthlyRate)}
+              </span>{" "}
+              / bulan
+            </p>
           </div>
 
           {showAction ? (
