@@ -1,6 +1,6 @@
-# Jagayanigiri EV Rental
+# Jayanagiri EV Rental
 
-Situs pemesanan sewa mobil listrik untuk **PT Jagayanigiri Sentosa**. Alur
+Situs pemesanan sewa mobil listrik untuk **PT Jayanagiri Sentosa**. Alur
 pemesanan mengikuti pola tiga langkah: **detail sewa → pilih armada →
 konfirmasi via WhatsApp**, tanpa registrasi akun. Verifikasi dokumen, DP, dan
 deposit diurus admin setelah pesanan masuk — lihat halaman Cara Sewa.

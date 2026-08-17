@@ -73,7 +73,7 @@ export function HeroCarousel({ vehicles }: HeroCarouselProps) {
       <div className="relative rounded-[2rem] bg-linear-to-br from-white/12 to-white/5 p-4 ring-1 ring-inset ring-white/15 backdrop-blur-sm sm:p-6">
         <section
           aria-roledescription="carousel"
-          aria-label="Armada Jagayanigiri"
+          aria-label="Armada Jayanagiri"
           onMouseEnter={() => setInteracting(true)}
           onMouseLeave={() => setInteracting(false)}
           onFocusCapture={() => setInteracting(true)}

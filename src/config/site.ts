@@ -8,12 +8,12 @@
  */
 
 export const siteConfig = {
-  legalName: "PT Jagayanigiri Sentosa",
-  brandName: "Jagayanigiri",
-  productName: "Jagayanigiri EV Rental",
+  legalName: "PT Jayanagiri Sentosa",
+  brandName: "Jayanagiri",
+  productName: "Jayanagiri EV Rental",
   tagline: "Sewa mobil listrik, tanpa ribet.",
   description:
-    "Layanan sewa mobil 100% listrik dari PT Jagayanigiri Sentosa. Rental harian di wilayah Jabodetabek dengan armada EV terawat, driver profesional, dan harga transparan.",
+    "Layanan sewa mobil 100% listrik dari PT Jayanagiri Sentosa. Rental harian di wilayah Jabodetabek dengan armada EV terawat, driver profesional, dan harga transparan.",
 
   /** Domain produksi. Dipakai untuk metadata & sitemap. */
   url: "https://jgs-ev.com",
