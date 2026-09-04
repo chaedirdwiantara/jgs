@@ -42,6 +42,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
   },
   robots: { index: true, follow: true },
+  verification: { google: siteConfig.google.siteVerification },
 };
 
 export const viewport: Viewport = {

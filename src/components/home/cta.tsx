@@ -1,8 +1,8 @@
-import { ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
-import { siteConfig } from "@/config/site";
+import { buildWhatsAppUrl } from "@/lib/contact-links";
 
 export function Cta() {
   return (
@@ -32,13 +32,15 @@ export function Cta() {
                 <ArrowRight className="size-4" aria-hidden="true" />
               </ButtonLink>
               <ButtonLink
-                href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
+                href={buildWhatsAppUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
                 size="lg"
                 variant="secondary"
                 className="border-0 bg-white/10 text-white ring-white/20 hover:bg-white/15 hover:ring-white/30"
               >
-                <Phone className="size-4" aria-hidden="true" />
-                Hubungi Kami
+                <MessageCircle className="size-4" aria-hidden="true" />
+                Hubungi via WhatsApp
               </ButtonLink>
             </div>
           </div>

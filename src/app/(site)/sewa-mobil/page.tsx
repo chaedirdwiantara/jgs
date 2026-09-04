@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { BatteryCharging, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 
 import { BookingWizard } from "@/components/booking/booking-wizard";
+import { FaqSection } from "@/components/faq/faq-section";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Container } from "@/components/ui/section";
+import { bookingFaqItems } from "@/data/faq";
 import { serviceAreaLabel } from "@/data/service-areas";
+import { faqPageJsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
   title: "Sewa Mobil Listrik",
@@ -49,6 +53,21 @@ export default function SewaMobilPage() {
       <Container className="py-10 sm:py-14">
         <BookingWizard />
       </Container>
+
+      {/*
+       * Below the wizard on purpose: the form is what people came for; the
+       * FAQ answers the doubts that stop them from finishing it. The WhatsApp
+       * button is hidden on this route, so the section's own WhatsApp link
+       * is the fallback for anything the answers do not cover.
+       */}
+      <FaqSection
+        eyebrow="FAQ Pemesanan"
+        title="Pertanyaan seputar pemesanan"
+        items={bookingFaqItems}
+        className="border-t border-ink-100 bg-ink-50"
+      />
+
+      <JsonLd data={faqPageJsonLd(bookingFaqItems)} />
     </>
   );
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle } from "lucide-react";
 
 import { Logo } from "@/components/layout/logo";
 import { footerNav, siteConfig } from "@/config/site";
+import { buildWhatsAppUrl } from "@/lib/contact-links";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -52,11 +53,14 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <a
-                  href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
+                  href={buildWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-ink-400 transition-colors hover:text-white"
                 >
-                  <Phone className="size-4 shrink-0 text-brand-400" aria-hidden="true" />
-                  {siteConfig.contact.phone}
+                  <MessageCircle className="size-4 shrink-0 text-brand-400" aria-hidden="true" />
+                  <span className="sr-only">WhatsApp </span>
+                  {siteConfig.contact.whatsapp}
                 </a>
               </li>
               <li>
