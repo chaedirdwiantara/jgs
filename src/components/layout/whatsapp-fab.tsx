@@ -2,10 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { siteConfig } from "@/config/site";
-import { toWhatsAppNumber } from "@/lib/format";
-
-const defaultText = `Halo ${siteConfig.brandName}, saya ingin bertanya tentang sewa mobil listrik.`;
+import { buildWhatsAppUrl } from "@/lib/contact-links";
 
 /**
  * Floating WhatsApp shortcut.
@@ -18,11 +15,9 @@ export function WhatsAppFab() {
   const pathname = usePathname();
   if (pathname.startsWith("/sewa-mobil")) return null;
 
-  const href = `https://wa.me/${toWhatsAppNumber(siteConfig.contact.whatsapp)}?text=${encodeURIComponent(defaultText)}`;
-
   return (
     <a
-      href={href}
+      href={buildWhatsAppUrl()}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Hubungi kami via WhatsApp"

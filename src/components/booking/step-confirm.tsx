@@ -12,9 +12,9 @@ import { estimatePrice } from "@/features/booking/pricing";
 import type { BookingDetails } from "@/features/booking/types";
 import {
   buildWhatsAppMessage,
-  buildWhatsAppUrl,
   createBookingReference,
 } from "@/features/booking/whatsapp";
+import { buildWhatsAppUrl } from "@/lib/contact-links";
 import { formatDateID, formatIDR } from "@/lib/format";
 
 type Props = {

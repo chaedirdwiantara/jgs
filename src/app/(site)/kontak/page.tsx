@@ -4,7 +4,7 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/section";
 import { siteConfig } from "@/config/site";
-import { toWhatsAppNumber } from "@/lib/format";
+import { buildWhatsAppUrl, phoneHref } from "@/lib/contact-links";
 
 export const metadata: Metadata = {
   title: "Kontak",
@@ -12,16 +12,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/kontak" },
 };
 
-const whatsappHref = `https://wa.me/${toWhatsAppNumber(siteConfig.contact.whatsapp)}?text=${encodeURIComponent(
-  `Halo ${siteConfig.brandName}, saya ingin bertanya tentang sewa mobil listrik.`,
-)}`;
-
 const channels = [
   {
     icon: MessageCircle,
     label: "WhatsApp",
     value: siteConfig.contact.whatsapp,
-    href: whatsappHref,
+    href: buildWhatsAppUrl(),
     external: true,
     description: "Jalur tercepat untuk pemesanan dan konfirmasi harga.",
   },
@@ -29,7 +25,7 @@ const channels = [
     icon: Phone,
     label: "Telepon",
     value: siteConfig.contact.phone,
-    href: `tel:${siteConfig.contact.phone.replace(/\s/g, "")}`,
+    href: phoneHref,
     external: false,
     description: "Tersedia pada jam operasional kantor.",
   },

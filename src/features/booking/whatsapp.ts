@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 import { serviceAreaLabel } from "@/data/service-areas";
 import { tierLabels, type Vehicle } from "@/data/vehicles";
-import { formatDateID, formatIDR, toWhatsAppNumber } from "@/lib/format";
+import { formatDateID, formatIDR } from "@/lib/format";
 
 import { formatDuration } from "./constants";
 import { estimatePrice } from "./pricing";
@@ -71,12 +71,6 @@ export function buildWhatsAppMessage({
   );
 
   return lines.join("\n");
-}
-
-/** `https://wa.me/<number>?text=<encoded message>` */
-export function buildWhatsAppUrl(message: string): string {
-  const number = toWhatsAppNumber(siteConfig.contact.whatsapp);
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
 /** Short, readable reference such as `JGS-8F2K4Q`. */

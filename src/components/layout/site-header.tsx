@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Menu, Phone, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
 
 import { Logo } from "@/components/layout/logo";
 import { ButtonLink } from "@/components/ui/button";
 import { mainNav, siteConfig } from "@/config/site";
+import { buildWhatsAppUrl } from "@/lib/contact-links";
 import { cn } from "@/lib/utils";
 
 /** Matches the `lg` breakpoint at which the drawer is replaced by inline nav. */
@@ -15,6 +16,13 @@ const DESKTOP_QUERY = "(min-width: 64rem)";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/**
+ * The admin number opens a WhatsApp chat rather than the dialler: one tap
+ * starts the conversation on any device, whereas `tel:` goes nowhere on most
+ * desktops and still makes phone users switch apps to paste the number.
+ */
+const whatsappHref = buildWhatsAppUrl();
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -138,11 +146,14 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-2 lg:flex">
           <a
-            href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100 hover:text-ink-900"
           >
-            <Phone className="size-4" aria-hidden="true" />
-            {siteConfig.contact.phone}
+            <MessageCircle className="size-4" aria-hidden="true" />
+            <span className="sr-only">WhatsApp </span>
+            {siteConfig.contact.whatsapp}
           </a>
           <ButtonLink href="/sewa-mobil" size="sm">
             Pesan Sekarang
@@ -205,11 +216,14 @@ export function SiteHeader() {
               Pesan Sekarang
             </ButtonLink>
             <a
-              href={`tel:${siteConfig.contact.phone.replace(/\s/g, "")}`}
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100"
             >
-              <Phone className="size-4" aria-hidden="true" />
-              {siteConfig.contact.phone}
+              <MessageCircle className="size-4" aria-hidden="true" />
+              <span className="sr-only">WhatsApp </span>
+              {siteConfig.contact.whatsapp}
             </a>
             <button
               type="button"
