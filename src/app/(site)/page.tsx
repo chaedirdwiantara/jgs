@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { FaqSection } from "@/components/faq/faq-section";
 import { Cta } from "@/components/home/cta";
 import { FleetPreview } from "@/components/home/fleet-preview";
@@ -9,6 +11,16 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { siteConfig } from "@/config/site";
 import { homeFaqItems } from "@/data/faq";
 import { faqPageJsonLd } from "@/lib/structured-data";
+
+export const metadata: Metadata = {
+  /*
+   * Self-referencing canonical. Every other page declares one next to its
+   * title; the home page inherits the root title, so this is its only
+   * page-level metadata. It also folds the `*.pages.dev` preview host into
+   * the production domain for search engines.
+   */
+  alternates: { canonical: "/" },
+};
 
 const orgJsonLd = {
   "@context": "https://schema.org",
