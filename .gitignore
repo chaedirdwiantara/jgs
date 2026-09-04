@@ -45,3 +45,6 @@ next-env.d.ts
 
 # static export output
 /out
+
+# cloudflare wrangler (local dev/deploy state)
+/.wrangler

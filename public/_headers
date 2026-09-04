@@ -1,0 +1,29 @@
+# Response headers for Cloudflare Pages.
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# `headers()` in next.config.ts is ignored under `output: "export"`, so this
+# file is the only place to set them. The build copies it verbatim into `out/`.
+#
+# CSP: only this origin may run scripts, load styles/fonts/images, or be
+# fetched. 'unsafe-inline' is unavoidable in a static export — Next.js
+# bootstraps React with inline <script> and React sets inline style attributes.
+# Before pointing /admin at the fleet API, add that origin to connect-src.
+#
+# HSTS: one year, deliberately without includeSubDomains — mail.jgs-ev.com is
+# served from another host whose certificate this site does not control.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Strict-Transport-Security: max-age=31536000
+
+# Belt and braces for the private tool: the page already carries a noindex
+# meta tag and robots.txt disallows it.
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+
+# Content-hashed by the build, so safe to cache forever.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

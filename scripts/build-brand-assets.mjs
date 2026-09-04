@@ -13,7 +13,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { alphaBounds, crop, decodePng, encodeIco, encodePng, square } from "./lib/png.mjs";
+import { alphaBounds, compose, crop, decodePng, encodeIco, encodePng, square } from "./lib/png.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE = join(root, "assets/brand/jgs-logo-source.png");
@@ -30,6 +30,17 @@ const TMP = join(root, ".brand-tmp");
 const LOCKUP_WIDTH = 360;
 /** Breathing room around the mark inside square icons, as a fraction of size. */
 const ICON_PADDING = 0.06;
+/**
+ * Open Graph card — 1200×630 is the one size every link-preview scraper
+ * (WhatsApp, Facebook, LinkedIn, X, Slack) agrees on. The lockup is ~1.9:1,
+ * the same shape as the card, so it is fitted to this fraction of the width
+ * and centred. The card carries no text: `og:title` and `og:description`
+ * already travel with it, and text baked into pixels cannot be updated from
+ * `config/site.ts`.
+ */
+const OG_WIDTH = 1200;
+const OG_HEIGHT = 630;
+const OG_LOGO_FRACTION = 0.58;
 
 mkdirSync(TMP, { recursive: true });
 mkdirSync(join(root, "public/brand"), { recursive: true });
@@ -88,6 +99,15 @@ const icoBuffer = encodeIco(
 writeFileSync(join(root, "src/app/favicon.ico"), icoBuffer);
 console.log(
   `  src/app/favicon.ico  ${icoSizes.join(" + ")}  ${(icoBuffer.length / 1024).toFixed(1)} KB`,
+);
+
+/* -- 5. Open Graph card ----------------------------------------------------- */
+console.log("\nOpen Graph:");
+const ogLogoPath = join(TMP, "og-logo.png");
+resize(trimmedPath, ogLogoPath, Math.round(OG_WIDTH * OG_LOGO_FRACTION));
+write(
+  join(root, "src/app/opengraph-image.png"),
+  compose(decodePng(readFileSync(ogLogoPath)), OG_WIDTH, OG_HEIGHT, [255, 255, 255]),
 );
 
 rmSync(TMP, { recursive: true, force: true });

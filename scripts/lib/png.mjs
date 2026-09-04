@@ -178,16 +178,17 @@ export function crop(image, { x, y, width, height }) {
 }
 
 /**
- * Centre `image` on a `size`×`size` canvas.
+ * Centre `image` on a `width`×`height` canvas.
  *
  * @param background `null` for transparent, or `[r, g, b]`. iOS composites
- *        transparent home-screen icons onto black, so `apple-icon` needs a fill.
+ *        transparent home-screen icons onto black, so `apple-icon` needs a fill;
+ *        link previews are often shown on dark UI, so the Open Graph card does too.
  */
-export function square(image, size, background = null) {
-  const data = Buffer.alloc(size * size * 4);
+export function compose(image, width, height, background = null) {
+  const data = Buffer.alloc(width * height * 4);
 
   if (background) {
-    for (let i = 0; i < size * size; i++) {
+    for (let i = 0; i < width * height; i++) {
       data[i * 4] = background[0];
       data[i * 4 + 1] = background[1];
       data[i * 4 + 2] = background[2];
@@ -195,19 +196,19 @@ export function square(image, size, background = null) {
     }
   }
 
-  const offsetX = Math.round((size - image.width) / 2);
-  const offsetY = Math.round((size - image.height) / 2);
+  const offsetX = Math.round((width - image.width) / 2);
+  const offsetY = Math.round((height - image.height) / 2);
 
   for (let y = 0; y < image.height; y++) {
     const targetY = offsetY + y;
-    if (targetY < 0 || targetY >= size) continue;
+    if (targetY < 0 || targetY >= height) continue;
 
     for (let x = 0; x < image.width; x++) {
       const targetX = offsetX + x;
-      if (targetX < 0 || targetX >= size) continue;
+      if (targetX < 0 || targetX >= width) continue;
 
       const s = (y * image.width + x) * 4;
-      const d = (targetY * size + targetX) * 4;
+      const d = (targetY * width + targetX) * 4;
       const alpha = image.data[s + 3] / 255;
 
       if (alpha === 0) continue;
@@ -225,7 +226,12 @@ export function square(image, size, background = null) {
     }
   }
 
-  return { width: size, height: size, data };
+  return { width, height, data };
+}
+
+/** Centre `image` on a `size`×`size` canvas — see `compose`. */
+export function square(image, size, background = null) {
+  return compose(image, size, size, background);
 }
 
 /** Packs PNG buffers into an .ico container (PNG-in-ICO, supported since IE11). */

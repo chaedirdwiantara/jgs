@@ -31,10 +31,11 @@ npx tsc --noEmit   # type check
 ```
 assets/brand/               # artwork master logo (sumber, tidak disajikan ke publik)
 public/
+  _headers                  # header respons Cloudflare Pages (CSP, HSTS, cache)
   brand/                    # logo hasil turunan yang dipakai situs
   images/fleet/             # foto armada (saat ini placeholder)
 src/
-  app/                      # route App Router + metadata, sitemap, robots
+  app/                      # route App Router + metadata, manifest, OG image, sitemap, robots
     (site)/                 # halaman publik — memakai header/footer marketing
       sewa-mobil/           # halaman alur pemesanan
       cara-sewa/            # langkah sewa, DP/deposit, ketentuan insiden
@@ -153,13 +154,19 @@ API** — setiap permintaan membawa bearer token dan backend wajib menolak yang
 tidak valid. Token disimpan di `sessionStorage` (ikut hilang saat tab ditutup),
 bukan `localStorage`.
 
+Header keamanan (CSP, `X-Frame-Options`, HSTS, `Permissions-Policy`) diatur di
+`public/_headers`, yang dibaca Cloudflare Pages — `headers()` di
+`next.config.ts` tidak berlaku pada static export. CSP-nya membatasi
+`connect-src` ke origin situs sendiri; **tambahkan origin API** ke sana saat
+`NEXT_PUBLIC_API_BASE_URL` diisi, atau konsol admin tidak bisa memanggilnya.
+
 ## Aset merek & armada
 
 Semua aset turunan dibuat ulang dari satu berkas master, jadi jangan diedit
 manual:
 
 ```bash
-npm run build:brand      # logo header/footer, icon.png, apple-icon.png, favicon.ico
+npm run build:brand      # logo header/footer, icon.png, apple-icon.png, favicon.ico, opengraph-image.png
 npm run build:fleet      # 24 foto armada (6 unit × 2 suasana × 2 bentuk)
 ```
 
@@ -240,9 +247,12 @@ minimum 3 : 1 untuk penanda non-teks.
   pada elemen yang memiliki turunan `position: fixed`, karena `animation-fill-mode:
   both` menyisakan matriks transform dan membentuk containing block. Gunakan
   `animate-fade-in` untuk kasus tersebut.
-- **SEO** — metadata per halaman, `sitemap.xml`, `robots.txt`, dan JSON-LD
-  (`AutoRental` + `FAQPage`) di halaman depan. `/admin` dikecualikan dari
-  sitemap, `robots.txt`, dan diberi `noindex`.
+- **SEO & identitas** — metadata per halaman, `sitemap.xml`, `robots.txt`,
+  JSON-LD (`AutoRental` + `FAQPage`) di halaman depan, kartu Open Graph
+  (`opengraph-image.png`, dipakai pratinjau tautan WhatsApp/sosial), dan web
+  manifest (`manifest.webmanifest`) yang menetapkan nama serta ikon untuk
+  bookmark dan pintasan layar utama. `/admin` dikecualikan dari sitemap,
+  `robots.txt`, dan diberi `noindex`.
 - **Korsel hero** — berputar otomatis tiap 5,5 detik dan berhenti saat kursor
   di atasnya, saat fokus keyboard masuk, saat tab tidak aktif, serta saat
   pengunjung memilih *reduced motion*. Tombol jeda yang terlihat disediakan
