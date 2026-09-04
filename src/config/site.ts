@@ -40,6 +40,15 @@ export const siteConfig = {
     instagram: "https://instagram.com/",
     linkedin: "https://linkedin.com/",
   },
+
+  /**
+   * Pengenal publik untuk perkakas Google. Keduanya aman disimpan di repo:
+   * hanya berlaku untuk domain ini dan tidak membuka akses apa pun sendiri.
+   */
+  google: {
+    /** Tag `google-site-verification` — bukti kepemilikan di Search Console. */
+    siteVerification: "T4DrsVsnWbZnuJM5stNfu-FJ7o3XDo4uOJRNhRgM47g",
+  },
 } as const;
 
 export type NavItem = {
