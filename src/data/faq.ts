@@ -1,9 +1,23 @@
+import { siteConfig } from "@/config/site";
+import { serviceAreaLabel } from "@/data/service-areas";
+import {
+  MAX_DURATION_DAYS,
+  MIN_DURATION_DAYS,
+} from "@/features/booking/constants";
+
 export type FaqItem = {
   question: string;
   answer: string;
 };
 
-export const faqItems: FaqItem[] = [
+/**
+ * General questions, shown on the home page.
+ *
+ * Kept separate from `bookingFaqItems` so the two lists never repeat each
+ * other — both are also emitted as `FAQPage` structured data, and Google
+ * expects each page's questions to be the ones visible on that page.
+ */
+export const homeFaqItems: FaqItem[] = [
   {
     question: "Apakah harga yang tampil sudah final?",
     answer:
@@ -50,5 +64,50 @@ export const faqItems: FaqItem[] = [
     question: "Bagaimana jika saya perlu membatalkan pesanan?",
     answer:
       "Hubungi admin sesegera mungkin melalui WhatsApp yang sama dengan saat Anda memesan. Ketentuan pembatalan, termasuk status DP yang sudah dibayarkan, dikonfirmasi langsung oleh admin sesuai kondisi pemesanan Anda.",
+  },
+];
+
+/**
+ * Questions about the booking flow itself, shown under the wizard on
+ * `/sewa-mobil`. Figures are derived from the booking rules and site config
+ * so the answers cannot drift from what the form actually offers.
+ */
+export const bookingFaqItems: FaqItem[] = [
+  {
+    question: "Apakah saya harus membuat akun untuk memesan?",
+    answer:
+      "Tidak perlu. Cukup isi detail sewa pada formulir di halaman ini — tanggal mulai, lama sewa, dan data pemesan. Ringkasan pesanan Anda otomatis terkirim ke admin kami melalui WhatsApp untuk diproses lebih lanjut.",
+  },
+  {
+    question: "Bisakah saya memilih unit tertentu, bukan hanya kategori?",
+    answer:
+      "Bisa. Setelah Anda mengisi tanggal dan lama sewa, sistem menampilkan unit yang tersedia beserta kapasitas dan estimasi tarifnya. Anda dapat memilih langsung dari daftar tersebut, atau menyampaikan preferensi model tertentu ke admin melalui WhatsApp.",
+  },
+  {
+    question: "Berapa lama proses konfirmasi setelah saya kirim pesanan?",
+    answer: `Admin biasanya membalas dalam hitungan menit pada jam operasional (${siteConfig.contact.operationalHours}). Anda akan menerima konfirmasi ketersediaan unit, harga final, serta instruksi pembayaran DP langsung melalui WhatsApp yang sama dengan nomor pemesanan.`,
+  },
+  {
+    question: "Apakah tersedia paket sewa bulanan, bukan hanya harian?",
+    answer: `Tersedia. Selain rental harian (${MIN_DURATION_DAYS}–${MAX_DURATION_DAYS} hari), kami juga melayani sewa bulanan dengan tarif khusus untuk kebutuhan pribadi maupun operasional perusahaan. Pilih paket Bulanan pada formulir, atau sampaikan kebutuhan Anda langsung ke admin untuk penawaran korporat.`,
+  },
+  {
+    question: "Apakah ada batas jarak tempuh (kilometer) per hari?",
+    answer: `Tidak ada batas kilometer untuk pemakaian dalam wilayah ${serviceAreaLabel}. Yang perlu diperhatikan adalah jangkauan baterai tiap unit — tim kami membantu memetakan titik SPKLU di sepanjang rencana perjalanan Anda agar tidak kehabisan daya di tengah jalan.`,
+  },
+  {
+    question: "Bagaimana jika saya ingin memperpanjang masa sewa?",
+    answer:
+      "Hubungi admin melalui WhatsApp minimal satu hari sebelum masa sewa berakhir. Perpanjangan bergantung pada ketersediaan unit untuk jadwal sesudahnya, dan tarif tambahan dihitung mengikuti sisa hari yang Anda butuhkan.",
+  },
+  {
+    question: "Apa saja metode pembayaran yang diterima?",
+    answer:
+      "Pembayaran DP dan pelunasan dapat dilakukan melalui transfer bank sesuai instruksi yang diberikan admin setelah pesanan dikonfirmasi. Untuk penyewa korporat, kami juga dapat menerbitkan invoice resmi sesuai kebutuhan administrasi perusahaan Anda.",
+  },
+  {
+    question: "Apa yang terjadi jika unit yang saya pilih ternyata tidak tersedia?",
+    answer:
+      "Admin akan segera menginformasikan dan menawarkan unit alternatif dengan kategori atau kapasitas setara. Karena harga di formulir masih berupa estimasi awal, DP baru diminta setelah unit dan tanggal benar-benar dikonfirmasi tersedia.",
   },
 ];
