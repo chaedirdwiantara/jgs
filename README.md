@@ -42,11 +42,14 @@ src/
     admin/                  # konsol admin — sengaja tanpa chrome marketing
   components/
     admin/                  # tabel, form, dan dialog konsol admin
+    analytics/              # Google Tag Manager (hanya build produksi)
     booking/                # komponen khusus alur pemesanan (per langkah)
+    faq/                    # section FAQ bersama (beranda & /sewa-mobil)
     home/                   # section halaman depan
     layout/                 # header, footer, logo, FAB WhatsApp, SiteChrome
+    seo/                    # JSON-LD
     ui/                     # primitif: Button, Input, Select, Field, Modal…
-  config/site.ts            # identitas & kontak perusahaan  ← WAJIB DIUBAH
+  config/site.ts            # identitas, kontak & pengenal Google ← WAJIB DIUBAH
   data/                     # katalog armada, area layanan, FAQ ← WAJIB DIUBAH
   features/
     admin/                  # domain layer admin (tanpa UI)
@@ -55,7 +58,7 @@ src/
     booking/                # domain layer pemesanan (tanpa UI)
       types.ts constants.ts schema.ts pricing.ts
       availability.ts whatsapp.ts use-booking-wizard.ts
-  lib/                      # utilitas format & class merge
+  lib/                      # utilitas format, tautan kontak, JSON-LD, class merge
 scripts/                    # generator aset + smoke test (dev only)
 ```
 
@@ -75,7 +78,8 @@ hanya menampilkan dan melaporkan ke atas.
 Semua nilai sementara ditandai `TODO` / "PLACEHOLDER" pada berkas berikut:
 
 1. **`src/config/site.ts`** — nama domain, nomor WhatsApp admin, telepon,
-   email, alamat, jam operasional, tautan media sosial.
+   email, alamat, jam operasional, tautan media sosial, serta pengenal Google
+   (`google.siteVerification` untuk Search Console dan `google.tagManagerId`).
    Nomor WhatsApp dinormalisasi otomatis (`08…`, `+62…`, `62…` semuanya valid).
 2. **`src/data/vehicles.ts`** — tarif harian, bulanan, dan biaya downtime sudah
    memakai daftar harga asli (belum termasuk PPN). Kapasitas dan jarak tempuh
@@ -247,12 +251,26 @@ minimum 3 : 1 untuk penanda non-teks.
   pada elemen yang memiliki turunan `position: fixed`, karena `animation-fill-mode:
   both` menyisakan matriks transform dan membentuk containing block. Gunakan
   `animate-fade-in` untuk kasus tersebut.
-- **SEO & identitas** — metadata per halaman, `sitemap.xml`, `robots.txt`,
-  JSON-LD (`AutoRental` + `FAQPage`) di halaman depan, kartu Open Graph
-  (`opengraph-image.png`, dipakai pratinjau tautan WhatsApp/sosial), dan web
-  manifest (`manifest.webmanifest`) yang menetapkan nama serta ikon untuk
-  bookmark dan pintasan layar utama. `/admin` dikecualikan dari sitemap,
-  `robots.txt`, dan diberi `noindex`.
+- **SEO & identitas** — metadata per halaman dengan canonical yang merujuk ke
+  dirinya sendiri (termasuk beranda), `sitemap.xml`, `robots.txt`, JSON-LD
+  (`AutoRental` + `FAQPage` di beranda, `FAQPage` di `/sewa-mobil` — daftar
+  FAQ kedua halaman sengaja berbeda dan JSON-LD hanya memuat pertanyaan yang
+  tampil di halaman itu), kartu Open Graph (`opengraph-image.png`, dipakai
+  pratinjau tautan WhatsApp/sosial), dan web manifest (`manifest.webmanifest`)
+  yang menetapkan nama serta ikon untuk bookmark dan pintasan layar utama.
+  Verifikasi Google Search Console lewat `metadata.verification` di root
+  layout. `/admin` dikecualikan dari sitemap, `robots.txt`, dan diberi
+  `noindex`.
+- **Kontak** — nomor admin di header, footer, dan CTA membuka chat WhatsApp
+  (`wa.me`) lewat `lib/contact-links.ts`, bukan `tel:`; hanya halaman Kontak
+  yang tetap menyediakan tautan telepon terpisah.
+- **Analitik** — Google Tag Manager dipasang lewat `@next/third-parties` di
+  `SiteChrome`, sehingga hanya halaman publik yang terukur (`/admin` tidak)
+  dan hanya pada build produksi (`next dev` tidak mengirim hit). CSP di
+  `public/_headers` sudah mengizinkan host Tag Manager, GA4, dan mode pratinjau
+  GTM; tag jenis lain yang ditambahkan dari GTM (mis. Google Ads) perlu
+  host-nya ditambahkan ke sana juga. Event kustom dapat dikirim dengan
+  `sendGTMEvent` dari paket yang sama.
 - **Korsel hero** — berputar otomatis tiap 5,5 detik dan berhenti saat kursor
   di atasnya, saat fokus keyboard masuk, saat tab tidak aktif, serta saat
   pengunjung memilih *reduced motion*. Tombol jeda yang terlihat disediakan
