@@ -9,10 +9,17 @@
 # bootstraps React with inline <script> and React sets inline style attributes.
 # Before pointing /admin at the fleet API, add that origin to connect-src.
 #
+# Google Tag Manager (components/analytics) needs its own hosts, per
+# https://developers.google.com/tag-platform/security/guides/csp — the tag
+# itself (*.googletagmanager.com, incl. the <noscript> iframe), GA4 beacons
+# (*.google-analytics.com, *.analytics.google.com) and GTM preview mode
+# (tagmanager.google.com, fonts.googleapis.com, *.gstatic.com). Any other tag
+# type added in the GTM container (e.g. Google Ads) needs its hosts here too.
+#
 # HSTS: one year, deliberately without includeSubDomains — mail.jgs-ev.com is
 # served from another host whose certificate this site does not control.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com https://tagmanager.google.com; style-src 'self' 'unsafe-inline' https://tagmanager.google.com https://fonts.googleapis.com; img-src 'self' data: https://*.googletagmanager.com https://*.google-analytics.com https://ssl.gstatic.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

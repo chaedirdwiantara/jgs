@@ -48,6 +48,8 @@ export const siteConfig = {
   google: {
     /** Tag `google-site-verification` — bukti kepemilikan di Search Console. */
     siteVerification: "T4DrsVsnWbZnuJM5stNfu-FJ7o3XDo4uOJRNhRgM47g",
+    /** Kontainer Google Tag Manager. Hanya dimuat pada build produksi. */
+    tagManagerId: "GTM-5F29R5N3",
   },
 } as const;
 
