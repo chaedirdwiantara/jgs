@@ -1,67 +1,66 @@
 "use client";
 
-import { AlertTriangle, Car, HardDrive, Plus, RefreshCw } from "lucide-react";
+import { AlertTriangle, Car, Plus, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 import { AdminConsoleSkeleton } from "@/components/admin/admin-console-skeleton";
 import { ConfirmDeleteDialog } from "@/components/admin/confirm-delete-dialog";
-import { LoginForm } from "@/components/admin/login-form";
+import { LocalModeBanner } from "@/components/admin/local-mode-banner";
+import { AdminPageHeader } from "@/components/admin/page-header";
 import { VehicleFormDialog } from "@/components/admin/vehicle-form-dialog";
 import { VehicleList } from "@/components/admin/vehicle-list";
 import { Button } from "@/components/ui/button";
 import type { Vehicle } from "@/data/vehicles";
-import { isBackendConfigured } from "@/features/admin/config";
 import { useAdminSession } from "@/features/admin/hooks/use-admin-session";
 import { useVehicles } from "@/features/admin/hooks/use-vehicles";
 
 /** `null` = closed, `"new"` = create, a vehicle = edit. */
 type FormTarget = null | "new" | Vehicle;
 
+/**
+ * Fleet management. The sign-in gate and the page chrome live in `AdminShell`,
+ * so this screen only has to render the fleet.
+ */
 export function AdminConsole() {
-  const { isAuthenticated, requiresLogin } = useAdminSession();
+  const { isAuthenticated } = useAdminSession();
   const { vehicles, status, error, isFetching, isMutating, refresh, save, remove } =
     useVehicles(isAuthenticated);
 
   const [formTarget, setFormTarget] = useState<FormTarget>(null);
   const [pendingDelete, setPendingDelete] = useState<Vehicle | null>(null);
 
-  if (requiresLogin && !isAuthenticated) return <LoginForm />;
-
   return (
-    <div className="container-page py-8 sm:py-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-ink-900 sm:text-2xl">
-            Manajemen Armada
-          </h1>
-          <p className="mt-1.5 text-sm text-ink-600">
-            {status === "ready"
-              ? `${vehicles.length} unit terdaftar. Data ini yang tampil di halaman armada dan alur pemesanan.`
-              : "Kelola data mobil yang tampil di situs."}
-          </p>
-        </div>
+    <div>
+      <AdminPageHeader
+        title="Manajemen Armada"
+        description={
+          status === "ready"
+            ? `${vehicles.length} unit terdaftar. Data ini yang tampil di halaman armada dan alur pemesanan.`
+            : "Kelola data mobil yang tampil di situs."
+        }
+        actions={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => void refresh()}
+              disabled={isFetching || status === "loading" || isMutating}
+            >
+              <RefreshCw
+                className={`size-4 ${isFetching || status === "loading" ? "animate-spin" : ""}`}
+                aria-hidden="true"
+              />
+              Muat ulang
+            </Button>
 
-        <div className="flex shrink-0 gap-2">
-          <Button
-            variant="secondary"
-            onClick={() => void refresh()}
-            disabled={isFetching || status === "loading" || isMutating}
-          >
-            <RefreshCw
-              className={`size-4 ${isFetching || status === "loading" ? "animate-spin" : ""}`}
-              aria-hidden="true"
-            />
-            Muat ulang
-          </Button>
+            <Button onClick={() => setFormTarget("new")} disabled={isMutating}>
+              <Plus className="size-4" aria-hidden="true" />
+              Tambah Mobil
+            </Button>
+          </>
+        }
+      />
 
-          <Button onClick={() => setFormTarget("new")} disabled={isMutating}>
-            <Plus className="size-4" aria-hidden="true" />
-            Tambah Mobil
-          </Button>
-        </div>
-      </div>
-
-      {isBackendConfigured ? null : <LocalModeBanner />}
+      <LocalModeBanner />
 
       <div className="mt-6">
         {status === "loading" ? <AdminConsoleSkeleton /> : null}
@@ -96,30 +95,6 @@ export function AdminConsole() {
         onClose={() => setPendingDelete(null)}
         onConfirm={remove}
       />
-    </div>
-  );
-}
-
-/**
- * Says out loud that nothing is being saved to a server yet. Without this the
- * admin looks identical to the connected version, and someone will enter a real
- * catalogue into a browser profile and lose it.
- */
-function LocalModeBanner() {
-  return (
-    <div className="mt-5 flex items-start gap-3 rounded-[var(--radius-card)] border border-amber-200 bg-amber-50 p-4">
-      <HardDrive className="mt-0.5 size-5 shrink-0 text-amber-700" aria-hidden="true" />
-      <div className="text-sm leading-relaxed text-amber-900">
-        <p className="font-semibold">Mode lokal — belum terhubung ke server</p>
-        <p className="mt-1 text-amber-800">
-          Perubahan hanya tersimpan di browser ini dan tidak memengaruhi situs
-          publik. Setelah API di AWS siap, isi{" "}
-          <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">
-            NEXT_PUBLIC_API_BASE_URL
-          </code>{" "}
-          lalu build ulang untuk beralih ke data server.
-        </p>
-      </div>
     </div>
   );
 }

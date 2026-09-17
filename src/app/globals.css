@@ -72,6 +72,15 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+
+    /*
+     * The palette above is light-only, and deliberately so — this is a light
+     * brand. Declaring the scheme stops a browser running in dark mode from
+     * inverting the native controls it still owns: date and time pickers,
+     * selects, checkboxes, scrollbars. Without it the rental form's date field
+     * renders dark-on-dark inside an otherwise white card.
+     */
+    color-scheme: light;
   }
 
   body {

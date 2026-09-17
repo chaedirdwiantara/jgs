@@ -4,12 +4,13 @@ import { useCallback, useSyncExternalStore } from "react";
 
 import { isBackendConfigured } from "../config";
 import { signOut as clearSession } from "../auth/auth-service";
-import { readToken, subscribeToSession } from "../auth/session";
+import { readToken, readUser, subscribeToSession } from "../auth/session";
+import type { AdminUser } from "../types";
 
 /**
- * Whether the operator may use the admin.
+ * Whether the operator may use the admin, and who they are.
  *
- * `useSyncExternalStore` rather than `useState` + `useEffect`: the token lives
+ * `useSyncExternalStore` rather than `useState` + `useEffect`: the session lives
  * outside React (sessionStorage), and this keeps every consumer — including a
  * second tab — in step without a render-then-correct flash.
  *
@@ -19,17 +20,26 @@ import { readToken, subscribeToSession } from "../auth/session";
  */
 export function useAdminSession() {
   const token = useSyncExternalStore(subscribeToSession, readToken, () => null);
+  const user = useSyncExternalStore(subscribeToSession, readUser, () => null);
 
   const signOut = useCallback(() => clearSession(), []);
 
+  const isAuthenticated = isBackendConfigured ? token !== null : true;
+
   return {
     token,
+    user: user as AdminUser | null,
     /*
      * Local mode has no server to authenticate against, so gating behind a
      * password form would be pure theatre. The UI says so instead.
      */
-    isAuthenticated: isBackendConfigured ? token !== null : true,
+    isAuthenticated,
     requiresLogin: isBackendConfigured,
+    /**
+     * Drives what the sidebar offers. Authorisation itself is the API's job —
+     * in local mode there is no server at all, so everything is on show.
+     */
+    canManageUsers: isBackendConfigured ? user?.role === "owner" : true,
     signOut,
   };
 }

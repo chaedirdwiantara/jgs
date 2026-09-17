@@ -1,11 +1,13 @@
 import { apiRequest } from "../repository/http-client";
 import { RepositoryError } from "../repository/types";
-import { clearToken, writeToken } from "./session";
+import type { AdminUser } from "../types";
+import { clearToken, writeSession } from "./session";
 
 type LoginResponse = {
   /** Either name is accepted so the backend can use its house convention. */
   token?: string;
   accessToken?: string;
+  user?: AdminUser;
 };
 
 export type Credentials = {
@@ -16,7 +18,7 @@ export type Credentials = {
 /**
  * Exchanges credentials for a bearer token.
  *
- * Expected contract: `POST /auth/login` → `{ token }`, `401` on bad
+ * Contract: `POST /auth/login` → `{ token, expiresAt, user }`, `401` on bad
  * credentials. The password never leaves this call — nothing persists it.
  */
 export async function signIn({ email, password }: Credentials): Promise<void> {
@@ -33,9 +35,17 @@ export async function signIn({ email, password }: Credentials): Promise<void> {
     throw new RepositoryError("server", "Server tidak mengirimkan token sesi.");
   }
 
-  writeToken(token);
+  writeSession(token, payload?.user ?? null);
 }
 
 export function signOut(): void {
   clearToken();
+}
+
+/** Self-service password change for the signed-in operator. */
+export async function changeOwnPassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  await apiRequest<void>("/auth/password", { method: "POST", body: input });
 }
