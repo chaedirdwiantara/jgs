@@ -1,9 +1,22 @@
 import type { Vehicle } from "@/data/vehicles";
 
+import type {
+  AdminUser,
+  ApplicationDetail,
+  ApplicationPage,
+  ApplicationStatus,
+  CreateUserInput,
+  ListApplicationsQuery,
+  Notification,
+  StatusCounts,
+  UpdateApplicationInput,
+  UpdateUserInput,
+} from "../types";
+
 /**
- * The port the admin UI talks to. Everything above this line is storage
+ * The ports the admin UI talks to. Everything above this line is storage
  * agnostic, so moving from browser storage to the AWS API is a matter of
- * swapping the adapter in `index.ts` — no screen has to change.
+ * swapping the adapters in `index.ts` — no screen has to change.
  */
 export interface VehicleRepository {
   list(signal?: AbortSignal): Promise<Vehicle[]>;
@@ -12,47 +25,37 @@ export interface VehicleRepository {
   remove(id: string, signal?: AbortSignal): Promise<void>;
 }
 
-export type RepositoryErrorKind =
-  /** The request never reached the API (offline, DNS, CORS). */
-  | "network"
-  /** Token missing, expired, or rejected. */
-  | "unauthorized"
-  /** The API rejected the payload — `fieldErrors` may carry the details. */
-  | "validation"
-  /** Slug already taken, or the record vanished between read and write. */
-  | "conflict"
-  | "not-found"
-  | "server"
-  | "unknown";
+export interface ApplicationRepository {
+  list(query: ListApplicationsQuery, signal?: AbortSignal): Promise<ApplicationPage>;
+  counts(signal?: AbortSignal): Promise<StatusCounts>;
+  get(id: string, signal?: AbortSignal): Promise<ApplicationDetail>;
+  update(id: string, patch: UpdateApplicationInput, signal?: AbortSignal): Promise<void>;
+  remove(id: string, signal?: AbortSignal): Promise<void>;
+}
 
-/**
- * One error type for both adapters, so the UI never branches on which storage
- * is behind it.
+export interface UserRepository {
+  list(signal?: AbortSignal): Promise<AdminUser[]>;
+  create(input: CreateUserInput, signal?: AbortSignal): Promise<AdminUser>;
+  update(id: string, patch: UpdateUserInput, signal?: AbortSignal): Promise<AdminUser>;
+  remove(id: string, signal?: AbortSignal): Promise<void>;
+}
+
+export interface NotificationRepository {
+  list(signal?: AbortSignal): Promise<Notification[]>;
+  unreadCount(signal?: AbortSignal): Promise<number>;
+  markRead(id: string, signal?: AbortSignal): Promise<void>;
+  markAllRead(signal?: AbortSignal): Promise<void>;
+}
+
+export type { ApplicationStatus };
+
+/*
+ * The error vocabulary is shared with the public rental form, so it lives in
+ * `@/lib`. Re-exported here because every screen in this feature imports it
+ * from the repository barrel.
  */
-export class RepositoryError extends Error {
-  readonly kind: RepositoryErrorKind;
-  readonly status?: number;
-  /** Server-side, per-field messages keyed by form field name. */
-  readonly fieldErrors?: Record<string, string>;
-
-  constructor(
-    kind: RepositoryErrorKind,
-    message: string,
-    options: { status?: number; fieldErrors?: Record<string, string>; cause?: unknown } = {},
-  ) {
-    super(message, { cause: options.cause });
-    this.name = "RepositoryError";
-    this.kind = kind;
-    this.status = options.status;
-    this.fieldErrors = options.fieldErrors;
-  }
-}
-
-/** Indonesian copy for each failure mode, shown directly to the operator. */
-export function describeError(error: unknown): string {
-  if (error instanceof RepositoryError) return error.message;
-  if (error instanceof DOMException && error.name === "AbortError") {
-    return "Permintaan dibatalkan.";
-  }
-  return "Terjadi kesalahan tak terduga. Coba lagi.";
-}
+export {
+  describeError,
+  RepositoryError,
+  type RepositoryErrorKind,
+} from "@/lib/api-error";

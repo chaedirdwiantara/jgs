@@ -74,6 +74,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
       { label: "Rental Harian", href: "/sewa-mobil" },
       { label: "Sewa Bulanan", href: "/sewa-mobil" },
       { label: "Sewa Korporat", href: "/kontak" },
+      { label: "Formulir Data Penyewa", href: "/formulir" },
     ],
   },
   {

@@ -39,17 +39,23 @@ src/
     (site)/                 # halaman publik — memakai header/footer marketing
       sewa-mobil/           # halaman alur pemesanan
       cara-sewa/            # langkah sewa, DP/deposit, ketentuan insiden
+      formulir/             # formulir data penyewa (KTP/SIM, dengan/tanpa driver)
     admin/                  # konsol admin — sengaja tanpa chrome marketing
+      armada/ pengguna/     # layar selain kotak masuk pengajuan
   components/
-    admin/                  # tabel, form, dan dialog konsol admin
+    admin/                  # shell, sidebar, lonceng, dan layar konsol admin
+      applications/ users/  # kotak masuk pengajuan & manajemen akun
     analytics/              # Google Tag Manager (hanya build produksi)
     booking/                # komponen khusus alur pemesanan (per langkah)
+    formulir/               # komponen formulir data penyewa (per langkah + unggah)
     faq/                    # section FAQ bersama (beranda & /sewa-mobil)
     home/                   # section halaman depan
     layout/                 # header, footer, logo, FAB WhatsApp, SiteChrome
     seo/                    # JSON-LD
     ui/                     # primitif: Button, Input, Select, Field, Modal…
-  config/site.ts            # identitas, kontak & pengenal Google ← WAJIB DIUBAH
+  config/
+    site.ts                 # identitas, kontak & pengenal Google ← WAJIB DIUBAH
+    api.ts                  # base URL API AWS (dipakai admin & formulir)
   data/                     # katalog armada, area layanan, FAQ ← WAJIB DIUBAH
   features/
     admin/                  # domain layer admin (tanpa UI)
@@ -58,7 +64,10 @@ src/
     booking/                # domain layer pemesanan (tanpa UI)
       types.ts constants.ts schema.ts pricing.ts
       availability.ts whatsapp.ts use-booking-wizard.ts
+    rental-form/            # domain layer formulir penyewa (tanpa UI)
+      schema.ts api.ts use-rental-form.ts
   lib/                      # utilitas format, tautan kontak, JSON-LD, class merge
+                            # + api-client.ts & api-error.ts (dipakai bersama)
 scripts/                    # generator aset + smoke test (dev only)
 ```
 
@@ -114,55 +123,87 @@ Untuk menambah atau mengganti unit: simpan master ke `assets/fleet/` mengikuti
 pola nama `<id>-<suasana>-<lebar>x<tinggi>.jpg`, daftarkan `id`-nya di
 `scripts/build-fleet-photos.mjs`, lalu jalankan `npm run build:fleet`.
 
+## Formulir data penyewa (`/formulir`)
+
+Formulir pendaftaran penyewa, empat langkah: data penyewa → detail sewa →
+dokumen → peraturan & konfirmasi. Menggantikan Google Form yang dipakai
+sebelumnya, dengan tambahan pilihan **dengan atau tanpa driver**.
+
+Pilihan "Jenis Mobil" dan "Darimana Anda mengetahui JGS" ada di
+`src/data/rental-form-options.ts`. Daftar unit di sana **sengaja lebih luas**
+daripada katalog `src/data/vehicles.ts` — JGS menyewakan unit yang belum
+difoto untuk situs. Jangan disamakan tanpa konfirmasi pemilik.
+
+Tujuh slot dokumen (KTP, selfie dengan KTP, SIM, Kartu Keluarga, media sosial
+wajib; token listrik dan riwayat akun opsional) diunggah **langsung ke S3**
+begitu berkasnya dipilih, memakai tiket presigned POST berumur pendek. Berkas
+tidak pernah melewati API. Di ponsel tersedia tombol kamera (`capture`) selain
+pilih berkas; di desktop tombol itu disembunyikan karena tidak ada gunanya.
+
+Halaman ini `noindex` — bisa dibuka lewat tautan, tapi tidak untuk dicari.
+Selama `NEXT_PUBLIC_API_BASE_URL` kosong, halaman menolak mengumpulkan data dan
+mengarahkan ke WhatsApp; lebih baik daripada diam-diam membuang KTP orang.
+
 ## Konsol admin (`/admin`)
 
-Halaman pengelolaan data armada: tambah, ubah, dan hapus unit dengan validasi
-zod yang sama ketatnya dengan alur pemesanan.
+Tiga layar, dengan sidebar (drawer di layar kecil):
+
+| Menu | Rute | Isi |
+| --- | --- | --- |
+| Pengajuan | `/admin` | Kotak masuk formulir penyewa: saring per status, buka detail, lihat dokumen, ubah status, catatan internal |
+| Armada | `/admin/armada` | Tambah/ubah/hapus unit, validasi zod yang sama ketatnya dengan alur pemesanan |
+| Pengguna | `/admin/pengguna` | Akun konsol — **hanya Pemilik** |
+
+Lonceng notifikasi di bilah atas menampilkan formulir yang baru masuk. Situs ini
+static export, jadi tidak ada socket: jumlah belum dibaca di-*poll* tiap 45
+detik lewat satu endpoint penghitung, dan daftarnya baru diambil saat lonceng
+dibuka.
+
+Peran: **Pemilik** (semua, termasuk kelola pengguna dan hapus pengajuan) dan
+**Staf** (pengajuan + armada). Sidebar menyembunyikan menu yang tidak relevan,
+tapi yang menegakkan aturan adalah API.
 
 ### Menghubungkan ke backend AWS
 
 Situs ini adalah *static export*, jadi tidak punya server sendiri — konsol admin
-memanggil API dari browser. Arahkan ke API dengan satu variabel lingkungan:
+dan formulir memanggil API dari browser. Arahkan ke API dengan satu variabel
+lingkungan:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://api.jgs-ev.com
+NEXT_PUBLIC_API_BASE_URL=https://xxxxxxxx.execute-api.ap-southeast-1.amazonaws.com
 ```
 
 Nilai `NEXT_PUBLIC_*` ditanam saat build, jadi perubahan memerlukan build ulang.
 
-Kontrak yang diharapkan — implementasikan lima endpoint ini dan konsol langsung
-berfungsi tanpa perubahan kode:
+Backend-nya ada di repo terpisah **`chaedirdwiantara/jgs-be`** (Lambda +
+DynamoDB + S3); daftar endpoint lengkap ada di README repo tersebut. Adapter di
+sisi ini ada di `src/features/admin/repository/` dan `src/features/rental-form/`
+— ganti adapter, bukan layar, bila kontraknya berubah.
 
-| Method | Path | Respons |
-| --- | --- | --- |
-| `POST` | `/auth/login` | `{ token }` — `401` bila kredensial salah |
-| `GET` | `/vehicles` | `Vehicle[]` atau `{ data: Vehicle[] }` |
-| `POST` | `/vehicles` | `Vehicle` — `409` bila `id` sudah dipakai |
-| `PUT` | `/vehicles/:id` | `Vehicle` |
-| `DELETE` | `/vehicles/:id` | `204` |
-
-Galat sebaiknya berbentuk `{ message, errors?: { field: string } }`; isi
-`errors` otomatis dipetakan ke kolom form yang bersangkutan.
+Galat berbentuk `{ message, errors?: { field: string } }`; isi `errors`
+otomatis dipetakan ke kolom form yang bersangkutan.
 
 ### Mode lokal
 
 Selama `NEXT_PUBLIC_API_BASE_URL` kosong, konsol memakai penyimpanan browser dan
 menampilkan banner peringatan. Ini agar layar admin bisa dipakai dan ditinjau
-sebelum backend siap — **bukan** tempat menyimpan katalog sungguhan.
+sebelum backend siap — **bukan** tempat menyimpan katalog sungguhan. Kotak
+masuk pengajuan sengaja tidak diisi contoh palsu.
 
 ### Keamanan
 
 `/admin` adalah berkas HTML statis yang bisa dibuka siapa saja; `noindex` dan
 `Disallow` hanya menjauhkan crawler. **Otorisasi sepenuhnya tanggung jawab
 API** — setiap permintaan membawa bearer token dan backend wajib menolak yang
-tidak valid. Token disimpan di `sessionStorage` (ikut hilang saat tab ditutup),
-bukan `localStorage`.
+tidak valid, termasuk memeriksa ulang peran di setiap rute khusus Pemilik.
+Token disimpan di `sessionStorage` (ikut hilang saat tab ditutup), bukan
+`localStorage`.
 
 Header keamanan (CSP, `X-Frame-Options`, HSTS, `Permissions-Policy`) diatur di
 `public/_headers`, yang dibaca Cloudflare Pages — `headers()` di
 `next.config.ts` tidak berlaku pada static export. CSP-nya membatasi
-`connect-src` ke origin situs sendiri; **tambahkan origin API** ke sana saat
-`NEXT_PUBLIC_API_BASE_URL` diisi, atau konsol admin tidak bisa memanggilnya.
+`connect-src`; **origin API dan bucket dokumen wajib terdaftar di sana**, atau
+formulir dan konsol diblokir browser di produksi tanpa error saat build.
 
 ## Aset merek & armada
 
