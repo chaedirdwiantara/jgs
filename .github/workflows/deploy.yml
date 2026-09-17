@@ -33,6 +33,11 @@ jobs:
         run: npm run lint
 
       - name: Build
+        # Not a secret: it is inlined into the client bundle by design, and the
+        # API authorises every request on its own. It must also be listed in
+        # connect-src in public/_headers or the browser blocks every call.
+        env:
+          NEXT_PUBLIC_API_BASE_URL: https://szs5246rkl.execute-api.ap-southeast-1.amazonaws.com
         run: npm run build # -> out/
 
       # Deploy only on a real push to main — skipped on pull_request builds.

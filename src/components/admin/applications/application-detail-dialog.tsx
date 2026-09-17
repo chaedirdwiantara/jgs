@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
+  displayVehicle,
   documentSlots,
   labelForChoice,
   referralChoices,
-  vehicleChoices,
 } from "@/data/rental-form-options";
 import { applicationRepository, describeError } from "@/features/admin/repository";
 import {
@@ -225,7 +225,7 @@ export function ApplicationDetailDialog({
           <Section title="Detail sewa">
             <Row
               label="Jenis mobil"
-              value={labelForChoice(vehicleChoices, detail.vehicleChoice, detail.vehicleOther)}
+              value={displayVehicle(detail)}
             />
             <Row label="Driver" value={detail.withDriver ? "Dengan driver" : "Lepas kunci"} />
             <Row

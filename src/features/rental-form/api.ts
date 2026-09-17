@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/api-client";
 import { RepositoryError } from "@/lib/api-error";
 
+import { labelForChoice, vehicleChoices } from "@/data/rental-form-options";
 import { toWhatsAppNumber } from "@/lib/format";
 
 import type { RentalFormValues } from "./schema";
@@ -196,6 +197,9 @@ export async function submitRentalApplication(
       durationDays: Number(values.durationDays),
 
       vehicleChoice: values.vehicleChoice,
+      // The display name goes with the slug so the API can write a readable
+      // Telegram alert without owning a copy of this option list.
+      vehicleLabel: labelForChoice(vehicleChoices, values.vehicleChoice),
       vehicleOther: values.vehicleOther.trim() || null,
       withDriver: values.driver === "ya",
       referralSource: values.referralSource,

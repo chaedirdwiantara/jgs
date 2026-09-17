@@ -3,7 +3,7 @@
 import { ChevronRight, UserRound } from "lucide-react";
 
 import { StatusBadge } from "@/components/admin/applications/status-badge";
-import { labelForChoice, vehicleChoices } from "@/data/rental-form-options";
+import { displayVehicle } from "@/data/rental-form-options";
 import type { ApplicationSummary } from "@/features/admin/types";
 import { formatDateShortID } from "@/lib/format";
 
@@ -43,7 +43,7 @@ export function ApplicationTable({
                   {item.referenceCode}
                 </span>
                 <span className="mt-2 block text-xs text-ink-600">
-                  {labelForChoice(vehicleChoices, item.vehicleChoice, item.vehicleOther)} ·{" "}
+                  {displayVehicle(item)} ·{" "}
                   {item.withDriver ? "Dengan driver" : "Lepas kunci"}
                 </span>
                 <span className="mt-0.5 block text-xs text-ink-500">
@@ -98,7 +98,7 @@ export function ApplicationTable({
                 </td>
                 <td className="px-4 py-3">
                   <span className="block text-sm text-ink-800">
-                    {labelForChoice(vehicleChoices, item.vehicleChoice, item.vehicleOther)}
+                    {displayVehicle(item)}
                   </span>
                   <span className="block text-xs text-ink-500">
                     {item.withDriver ? "Dengan driver" : "Lepas kunci"}

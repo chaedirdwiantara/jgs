@@ -11,13 +11,13 @@
 # The JGS API (repo `chaedirdwiantara/jgs-be`) is called straight from the
 # browser by both /admin and /formulir, so its origin must be in connect-src:
 #
-#   *.execute-api.ap-southeast-1.amazonaws.com  — the API itself
-#   jgs-documents-…s3.ap-southeast-1.amazonaws.com — direct upload of KTP/SIM
-#                                                     photos via a presigned POST
+#   szs5246rkl.execute-api.ap-southeast-1.amazonaws.com — the API itself
+#   jgs-documents-121205961560.s3.ap-southeast-1.amazonaws.com — direct upload
+#       of KTP/SIM photos via a presigned POST
 #
-# The execute-api entry is a wildcard because the API id is assigned by AWS at
-# stack-creation time. Narrow it to the exact host once the id is stable; the
-# wildcard still only covers one account's APIs in one region.
+# Both are the exact hosts, not wildcards. They change only if the
+# CloudFormation stack `jgs-be` is recreated from scratch, in which case the
+# new ApiBaseUrl output has to be copied here and into NEXT_PUBLIC_API_BASE_URL.
 #
 # img-src needs blob: because the form previews the photo the visitor just
 # picked, straight from the File object, before it is uploaded.
@@ -32,7 +32,7 @@
 # HSTS: one year, deliberately without includeSubDomains — mail.jgs-ev.com is
 # served from another host whose certificate this site does not control.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com https://tagmanager.google.com; style-src 'self' 'unsafe-inline' https://tagmanager.google.com https://fonts.googleapis.com; img-src 'self' data: blob: https://*.googletagmanager.com https://*.google-analytics.com https://ssl.gstatic.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.execute-api.ap-southeast-1.amazonaws.com https://jgs-documents-121205961560.s3.ap-southeast-1.amazonaws.com https://*.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googletagmanager.com https://tagmanager.google.com; style-src 'self' 'unsafe-inline' https://tagmanager.google.com https://fonts.googleapis.com; img-src 'self' data: blob: https://*.googletagmanager.com https://*.google-analytics.com https://ssl.gstatic.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://szs5246rkl.execute-api.ap-southeast-1.amazonaws.com https://jgs-documents-121205961560.s3.ap-southeast-1.amazonaws.com https://*.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; frame-src https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

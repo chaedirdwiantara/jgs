@@ -26,6 +26,8 @@ export type ApplicationSummary = {
   fullName: string;
   whatsapp: string;
   vehicleChoice: string;
+  /** The unit's name as the renter saw it, stored with the submission. */
+  vehicleLabel: string;
   vehicleOther: string | null;
   withDriver: boolean;
   startDate: string;

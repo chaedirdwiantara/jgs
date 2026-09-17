@@ -60,6 +60,24 @@ export function labelForChoice(
 }
 
 /**
+ * How a submitted unit is named in the console.
+ *
+ * Prefers `vehicleLabel` — the name stored at submission time — over looking
+ * the slug up in the list above, so a past application keeps reading correctly
+ * even after the option list is renamed or the unit is retired.
+ */
+export function displayVehicle(application: {
+  vehicleChoice: string;
+  vehicleLabel?: string;
+  vehicleOther: string | null;
+}): string {
+  if (application.vehicleChoice === OTHER_OPTION) {
+    return application.vehicleOther?.trim() || "Lainnya";
+  }
+  return application.vehicleLabel || labelForChoice(vehicleChoices, application.vehicleChoice);
+}
+
+/**
  * "Peraturan Sewa Mobil Lepas Kunci", shown in full before the renter can
  * agree to it. Transcribed from the operator's form; the only change is the
  * unbalanced bracket in point 2, which was closed so the sentence parses.
