@@ -49,6 +49,65 @@ export const driverChoices: ChoiceOption[] = [
   { value: "ya", label: "Dengan driver" },
 ];
 
+/**
+ * "Akun media sosial". The operator verifies a renter by opening their profile,
+ * so what is stored has to be something clickable — see `socialProfileUrl`.
+ */
+export const socialPlatformChoices: ChoiceOption[] = [
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "facebook", label: "Facebook" },
+  { value: OTHER_OPTION, label: "Lainnya" },
+];
+
+/** Profile roots, so a bare username still resolves to a real page. */
+const socialProfileRoots: Record<string, string> = {
+  instagram: "https://www.instagram.com/",
+  tiktok: "https://www.tiktok.com/@",
+  facebook: "https://www.facebook.com/",
+};
+
+/** A pasted address that omits the scheme, e.g. `instagram.com/budi`. */
+const BARE_DOMAIN = /^[a-z0-9-]+(\.[a-z0-9-]+)+\//i;
+
+/**
+ * The link the console opens for an applicant's social account.
+ *
+ * Accepts both shapes the form allows: a full profile URL pasted from the app,
+ * or just the username — which only resolves once the platform is known, which
+ * is why the two are stored as a pair.
+ *
+ * Returns `null` when no address can be built (a username under "Lainnya"), and
+ * the caller shows the raw text instead of a dead link.
+ *
+ * Both arguments are nullable on purpose: applications submitted before this
+ * pair existed carry neither, and the console renders them alongside new ones.
+ */
+export function socialProfileUrl(
+  platform: string | null | undefined,
+  account: string | null | undefined,
+): string | null {
+  const value = account?.trim();
+  if (!value) return null;
+
+  const candidate = BARE_DOMAIN.test(value) ? `https://${value}` : value;
+
+  if (/^https?:\/\//i.test(candidate)) {
+    try {
+      const url = new URL(candidate);
+      // Anything else — `javascript:`, `data:` — must never reach an `href`.
+      return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const root = platform ? socialProfileRoots[platform] : undefined;
+  if (!root) return null;
+
+  return `${root}${value.replace(/^@+/, "")}`;
+}
+
 /** Resolves a stored value back to something readable, including free text. */
 export function labelForChoice(
   options: ChoiceOption[],
@@ -57,6 +116,23 @@ export function labelForChoice(
 ): string {
   if (value === OTHER_OPTION) return other?.trim() || "Lainnya";
   return options.find((option) => option.value === value)?.label ?? value;
+}
+
+/**
+ * How a social account reads on screen: `Instagram — budi.santoso`.
+ *
+ * Empty string when nothing was given, which every caller renders as an em
+ * dash — including applications from before the field existed.
+ */
+export function describeSocialAccount(
+  platform: string | null | undefined,
+  account: string | null | undefined,
+): string {
+  const value = account?.trim();
+  if (!value) return "";
+
+  const label = platform ? labelForChoice(socialPlatformChoices, platform) : "";
+  return label ? `${label} — ${value}` : value;
 }
 
 /**
@@ -136,13 +212,6 @@ export const documentSlots: DocumentSlotDefinition[] = [
     capture: "environment",
   },
   {
-    key: "sosialMedia",
-    label: "Akun media sosial (IG/TikTok)",
-    hint: "Tangkapan layar profil akun Anda.",
-    required: true,
-    capture: "environment",
-  },
-  {
     key: "tokenListrik",
     label: "Foto nomor token listrik rumah",
     hint: "Membantu verifikasi alamat tinggal.",
@@ -159,3 +228,14 @@ export const documentSlots: DocumentSlotDefinition[] = [
 ];
 
 export const requiredDocumentSlots = documentSlots.filter((slot) => slot.required);
+
+/**
+ * Slots the form no longer asks for, so the console can still name the files on
+ * applications submitted before the change. Never rendered on the form itself.
+ *
+ * `sosialMedia` was a screenshot of the renter's profile; it is now the
+ * `socialPlatform` + `socialAccount` pair on step 1, which the console can open.
+ */
+export const legacyDocumentLabels: Record<string, string> = {
+  sosialMedia: "Akun media sosial (unggahan lama)",
+};

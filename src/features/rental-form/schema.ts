@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { OTHER_OPTION } from "@/data/rental-form-options";
+import { OTHER_OPTION, socialProfileUrl } from "@/data/rental-form-options";
 import { todayISO, toWhatsAppNumber } from "@/lib/format";
 
 /**
@@ -54,6 +54,12 @@ export const rentalFormSchema = z
     whatsapp: phone("Nomor WhatsApp"),
     gsmNumber: phone("Nomor GSM"),
     emergencyNumber: phone("Nomor darurat"),
+    socialPlatform: z.string().min(1, "Pilih platform media sosial"),
+    /* A profile link or a bare username — see `socialProfileUrl`. */
+    socialAccount: text("Akun media sosial", 2, 200).refine(
+      (value) => !/\s/.test(value),
+      "Tulis tautan profil atau username saja, tanpa spasi",
+    ),
 
     /* Langkah 2 — detail sewa */
     purpose: text("Tujuan menyewa mobil", 2, 300),
@@ -101,6 +107,23 @@ export const rentalFormSchema = z
         message: "Tuliskan dari mana Anda mengetahui JGS",
       });
     }
+    /*
+     * For a known platform the pair must resolve to an address the operator can
+     * open — that is the whole point of collecting it. "Lainnya" is exempt: a
+     * username there has no profile root to hang off, and the console falls
+     * back to showing the text.
+     */
+    if (
+      value.socialPlatform &&
+      value.socialPlatform !== OTHER_OPTION &&
+      !socialProfileUrl(value.socialPlatform, value.socialAccount)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["socialAccount"],
+        message: "Tautan tidak valid. Tempel link profil, atau tulis username saja.",
+      });
+    }
   });
 
 export type RentalFormValues = z.input<typeof rentalFormSchema>;
@@ -112,6 +135,8 @@ export const defaultRentalFormValues: RentalFormValues = {
   whatsapp: "",
   gsmNumber: "",
   emergencyNumber: "",
+  socialPlatform: "",
+  socialAccount: "",
   purpose: "",
   usageLocation: "",
   startDate: "",
@@ -131,7 +156,16 @@ export const defaultRentalFormValues: RentalFormValues = {
  * Step 3 (documents) is not in here — uploads are not react-hook-form state.
  */
 export const stepFields = {
-  penyewa: ["email", "fullName", "address", "whatsapp", "gsmNumber", "emergencyNumber"],
+  penyewa: [
+    "email",
+    "fullName",
+    "address",
+    "whatsapp",
+    "gsmNumber",
+    "emergencyNumber",
+    "socialPlatform",
+    "socialAccount",
+  ],
   sewa: [
     "purpose",
     "usageLocation",

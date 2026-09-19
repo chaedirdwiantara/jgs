@@ -189,6 +189,8 @@ export async function submitRentalApplication(
       whatsapp: toWhatsAppNumber(values.whatsapp),
       gsmNumber: toWhatsAppNumber(values.gsmNumber),
       emergencyNumber: toWhatsAppNumber(values.emergencyNumber),
+      socialPlatform: values.socialPlatform,
+      socialAccount: values.socialAccount.trim(),
 
       purpose: values.purpose.trim(),
       usageLocation: values.usageLocation.trim(),

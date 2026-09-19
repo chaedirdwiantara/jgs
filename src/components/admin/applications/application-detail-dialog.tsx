@@ -2,6 +2,7 @@
 
 import {
   AlertCircle,
+  AtSign,
   ExternalLink,
   FileText,
   MessageCircle,
@@ -14,10 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
+  describeSocialAccount,
   displayVehicle,
   documentSlots,
   labelForChoice,
+  legacyDocumentLabels,
   referralChoices,
+  socialProfileUrl,
 } from "@/data/rental-form-options";
 import { applicationRepository, describeError } from "@/features/admin/repository";
 import {
@@ -37,7 +41,11 @@ type Props = {
   onDelete: (id: string) => Promise<void>;
 };
 
-const documentLabels = new Map(documentSlots.map((slot) => [slot.key, slot.label]));
+const documentLabels = new Map<string, string>([
+  ...documentSlots.map((slot) => [slot.key, slot.label] as const),
+  // Applications submitted before a slot was retired still carry its file.
+  ...Object.entries(legacyDocumentLabels),
+]);
 
 export function ApplicationDetailDialog({
   applicationId,
@@ -219,6 +227,18 @@ export function ApplicationDetailDialog({
             />
             <Row label="Nomor GSM" value={detail.gsmNumber} />
             <Row label="Nomor darurat" value={detail.emergencyNumber} />
+            {/*
+              `href` is undefined when the pair cannot resolve to a profile — a
+              username under "Lainnya", or an application from before the field
+              existed — and the row falls back to plain text rather than a link
+              that goes nowhere.
+            */}
+            <Row
+              label="Media sosial"
+              value={describeSocialAccount(detail.socialPlatform, detail.socialAccount)}
+              href={socialProfileUrl(detail.socialPlatform, detail.socialAccount) ?? undefined}
+              icon={<AtSign className="size-3.5" aria-hidden="true" />}
+            />
             <Row label="Alamat tinggal" value={detail.address} />
           </Section>
 

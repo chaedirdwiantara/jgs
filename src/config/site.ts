@@ -21,8 +21,7 @@ export const siteConfig = {
   contact: {
     /** Nomor WhatsApp admin. Format bebas — dinormalisasi otomatis ke 62…. */
     whatsapp: "0811803090",
-    /** TODO: ganti dengan email resmi. */
-    email: "halo@jagayanigiri.co.id",
+    email: "halo@jayanagirisentosa.com",
     /**
      * TODO: ganti bila ada nomor telepon kantor terpisah. Sementara diarahkan
      * ke nomor admin yang sama agar tidak ada nomor palsu tampil di header.

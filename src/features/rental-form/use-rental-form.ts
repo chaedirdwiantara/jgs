@@ -56,7 +56,7 @@ function initialDocuments(): Record<string, DocumentState> {
  * navigation and submission.
  *
  * Photos upload as soon as they are chosen rather than on submit. A renter on a
- * phone picks seven files; making them wait for all seven to transfer after
+ * phone picks six files; making them wait for all six to transfer after
  * pressing "Kirim" is how a form gets abandoned — and a failure at that point
  * would lose every one of them at once.
  */
