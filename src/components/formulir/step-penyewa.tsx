@@ -3,8 +3,16 @@
 import type { UseFormReturn } from "react-hook-form";
 
 import { Field } from "@/components/ui/field";
-import { Input, Textarea } from "@/components/ui/input";
+import { Input, Select, Textarea } from "@/components/ui/input";
+import { OTHER_OPTION, socialPlatformChoices } from "@/data/rental-form-options";
 import type { RentalFormValues } from "@/features/rental-form/schema";
+
+/** What "just the username" looks like on each platform. */
+const accountPlaceholders: Record<string, string> = {
+  instagram: "budi.santoso",
+  tiktok: "@budisantoso",
+  facebook: "budi.santoso",
+};
 
 /**
  * Step 1 — who is renting and how to reach them.
@@ -14,8 +22,16 @@ import type { RentalFormValues } from "@/features/rental-form/schema";
  * is out.
  */
 export function StepPenyewa({ form }: { form: UseFormReturn<RentalFormValues> }) {
-  const { register, formState } = form;
+  const { register, watch, formState } = form;
   const { errors } = formState;
+
+  /*
+   * The account field follows the platform: what counts as a valid username is
+   * platform-specific, and "@budisantoso" in the box is a clearer instruction
+   * than any sentence about it.
+   */
+  const socialPlatform = watch("socialPlatform");
+  const isOtherPlatform = socialPlatform === OTHER_OPTION;
 
   return (
     <div className="grid gap-5 sm:grid-cols-2">
@@ -102,6 +118,57 @@ export function StepPenyewa({ form }: { form: UseFormReturn<RentalFormValues> })
             errors.emergencyNumber ? "emergencyNumber-error" : "emergencyNumber-hint"
           }
           {...register("emergencyNumber")}
+        />
+      </Field>
+
+      <Field
+        htmlFor="socialPlatform"
+        label="Media sosial"
+        hint="Dipakai tim kami untuk verifikasi."
+        error={errors.socialPlatform?.message}
+      >
+        <Select
+          id="socialPlatform"
+          invalid={Boolean(errors.socialPlatform)}
+          aria-describedby={
+            errors.socialPlatform ? "socialPlatform-error" : "socialPlatform-hint"
+          }
+          {...register("socialPlatform")}
+        >
+          <option value="">Pilih platform</option>
+          {socialPlatformChoices.map((choice) => (
+            <option key={choice.value} value={choice.value}>
+              {choice.label}
+            </option>
+          ))}
+        </Select>
+      </Field>
+
+      <Field
+        htmlFor="socialAccount"
+        label="Username atau link profil"
+        hint={
+          isOtherPlatform
+            ? "Tempel link profil akun Anda."
+            : "Tempel link profil, atau cukup username-nya."
+        }
+        error={errors.socialAccount?.message}
+      >
+        <Input
+          id="socialAccount"
+          type="text"
+          inputMode="url"
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          // Falls back to a full address for "Lainnya" and before a platform is
+          // picked, which are exactly the cases a username cannot be resolved in.
+          placeholder={accountPlaceholders[socialPlatform] ?? "https://instagram.com/budi.santoso"}
+          invalid={Boolean(errors.socialAccount)}
+          aria-describedby={
+            errors.socialAccount ? "socialAccount-error" : "socialAccount-hint"
+          }
+          {...register("socialAccount")}
         />
       </Field>
 

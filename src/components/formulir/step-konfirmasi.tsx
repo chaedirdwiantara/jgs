@@ -4,6 +4,7 @@ import { AlertCircle, ScrollText } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 
 import {
+  describeSocialAccount,
   documentSlots,
   lepasKunciRules,
   labelForChoice,
@@ -37,6 +38,10 @@ export function StepKonfirmasi({ form, documents, onEditStep }: StepKonfirmasiPr
         <ReviewRow label="WhatsApp" value={values.whatsapp} />
         <ReviewRow label="Nomor GSM" value={values.gsmNumber} />
         <ReviewRow label="Nomor darurat" value={values.emergencyNumber} />
+        <ReviewRow
+          label="Media sosial"
+          value={describeSocialAccount(values.socialPlatform, values.socialAccount)}
+        />
         <ReviewRow label="Alamat tinggal" value={values.address} />
       </ReviewCard>
 

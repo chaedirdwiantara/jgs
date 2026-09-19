@@ -55,6 +55,10 @@ export type ApplicationDetail = ApplicationSummary & {
   address: string;
   gsmNumber: string;
   emergencyNumber: string;
+  /** Platform value from `socialPlatformChoices`; pairs with `socialAccount`. */
+  socialPlatform: string;
+  /** A profile URL or a bare username — resolve with `socialProfileUrl`. */
+  socialAccount: string;
   purpose: string;
   usageLocation: string;
   startTime: string;
