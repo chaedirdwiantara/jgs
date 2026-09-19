@@ -13,6 +13,7 @@ import { siteConfig } from "@/config/site";
 import { isBackendConfigured } from "@/config/api";
 import { useRentalForm, wizardSteps } from "@/features/rental-form/use-rental-form";
 import { buildWhatsAppUrl } from "@/lib/contact-links";
+import { formatWaitID } from "@/lib/format";
 
 export function RentalForm() {
   const wizard = useRentalForm();
@@ -23,6 +24,7 @@ export function RentalForm() {
 
   const isLastStep = wizard.stepIndex === wizardSteps.length - 1;
   const { errors, isSubmitting } = wizard.form.formState;
+  const isCoolingDown = wizard.cooldownSeconds > 0;
 
   return (
     <div className="mx-auto w-full max-w-3xl">
@@ -95,7 +97,11 @@ export function RentalForm() {
           </Button>
 
           {isLastStep ? (
-            <Button type="submit" size="lg" disabled={isSubmitting || wizard.isUploading}>
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isSubmitting || wizard.isUploading || isCoolingDown}
+            >
               <Send className="size-4" aria-hidden="true" />
               {isSubmitting ? "Mengirim…" : "Kirim formulir"}
             </Button>
@@ -110,6 +116,16 @@ export function RentalForm() {
         {wizard.isUploading ? (
           <p className="mt-3 text-center text-xs text-ink-500">
             Menunggu unggahan selesai…
+          </p>
+        ) : null}
+
+        {isCoolingDown ? (
+          <p
+            role="status"
+            aria-live="polite"
+            className="mt-3 text-center text-xs tabular-nums text-ink-500"
+          >
+            Tombol kirim aktif kembali dalam {formatWaitID(wizard.cooldownSeconds)}.
           </p>
         ) : null}
       </form>

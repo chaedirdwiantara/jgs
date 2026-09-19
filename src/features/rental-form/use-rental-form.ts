@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { documentSlots, requiredDocumentSlots } from "@/data/rental-form-options";
 import { describeError, RepositoryError } from "@/lib/api-error";
+import { useCountdown } from "@/lib/use-countdown";
 
 import {
   submitRentalApplication,
@@ -52,6 +53,14 @@ function initialDocuments(): Record<string, DocumentState> {
 }
 
 /**
+ * How long "Kirim" stays disabled after a 429 that carried no `Retry-After`
+ * (a proxy in the way, or an older API). Long enough to break the tap-tap-tap
+ * reflex that turns one refusal into a lockout, short enough not to strand
+ * anyone if the header was simply lost.
+ */
+const FALLBACK_COOLDOWN_SECONDS = 60;
+
+/**
  * Owns the whole intake form: field state, per-slot upload state, step
  * navigation and submission.
  *
@@ -71,6 +80,17 @@ export function useRentalForm() {
   const [documents, setDocuments] = useState<Record<string, DocumentState>>(initialDocuments);
   const [documentsError, setDocumentsError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
+
+  /*
+   * After the API refuses a submission for being too frequent, the form holds
+   * the renter back for exactly as long as the API said, with a visible count.
+   * Retrying sooner cannot succeed and only makes the wait look broken.
+   */
+  const cooldown = useCountdown({
+    // The refusal message names a wait that has now passed; leaving it up
+    // beside a re-enabled button would contradict itself.
+    onFinish: () => form.clearErrors("root"),
+  });
 
   /** Lets a replaced or removed upload cancel the transfer still in flight. */
   const uploads = useRef(new Map<string, AbortController>());
@@ -220,6 +240,10 @@ export function useRentalForm() {
         }
       }
 
+      if (cause instanceof RepositoryError && cause.kind === "rate-limited") {
+        cooldown.start(cause.retryAfterSeconds ?? FALLBACK_COOLDOWN_SECONDS);
+      }
+
       form.setError("root", { type: "server", message: describeError(cause) });
     }
   });
@@ -232,6 +256,8 @@ export function useRentalForm() {
     documentsError,
     documentsComplete,
     isUploading,
+    /** Seconds until "Kirim" is allowed again after a rate-limit refusal; `0` when it is. */
+    cooldownSeconds: cooldown.seconds,
     result,
     next,
     back,
