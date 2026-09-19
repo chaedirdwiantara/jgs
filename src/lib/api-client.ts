@@ -97,6 +97,20 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   throw new RepositoryError(
     kind,
     details.message ?? details.error ?? FALLBACK_MESSAGE[kind],
-    { status: response.status, fieldErrors: toFieldErrors(details.errors) },
+    {
+      status: response.status,
+      fieldErrors: toFieldErrors(details.errors),
+      retryAfterSeconds: toRetryAfterSeconds(response.headers.get("Retry-After")),
+    },
   );
+}
+
+/**
+ * `Retry-After` may be a delay in seconds or an HTTP date; the API sends
+ * seconds. Anything unparseable is treated as absent rather than as zero.
+ */
+function toRetryAfterSeconds(header: string | null): number | undefined {
+  if (!header) return undefined;
+  const seconds = Number(header);
+  return Number.isFinite(seconds) && seconds >= 0 ? seconds : undefined;
 }

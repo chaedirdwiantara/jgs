@@ -86,3 +86,12 @@ export function toWhatsAppNumber(input: string): string {
   if (digits.startsWith("8")) return `62${digits}`;
   return digits;
 }
+
+/**
+ * "2 menit" / "45 detik" — for a countdown the renter is watching. Minutes are
+ * rounded up so the figure never reads as "0 menit" while there is time left.
+ */
+export function formatWaitID(seconds: number): string {
+  if (seconds >= 60) return `${Math.ceil(seconds / 60)} menit`;
+  return `${Math.max(0, Math.ceil(seconds))} detik`;
+}

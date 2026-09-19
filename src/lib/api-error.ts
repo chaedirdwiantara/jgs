@@ -23,17 +23,25 @@ export class RepositoryError extends Error {
   readonly status?: number;
   /** Server-side, per-field messages keyed by form field name. */
   readonly fieldErrors?: Record<string, string>;
+  /** For `rate-limited`: the API's `Retry-After`, in seconds, when it sent one. */
+  readonly retryAfterSeconds?: number;
 
   constructor(
     kind: RepositoryErrorKind,
     message: string,
-    options: { status?: number; fieldErrors?: Record<string, string>; cause?: unknown } = {},
+    options: {
+      status?: number;
+      fieldErrors?: Record<string, string>;
+      retryAfterSeconds?: number;
+      cause?: unknown;
+    } = {},
   ) {
     super(message, { cause: options.cause });
     this.name = "RepositoryError";
     this.kind = kind;
     this.status = options.status;
     this.fieldErrors = options.fieldErrors;
+    this.retryAfterSeconds = options.retryAfterSeconds;
   }
 }
 
